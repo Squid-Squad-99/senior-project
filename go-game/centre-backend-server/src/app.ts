@@ -1,53 +1,86 @@
-import express from "express";
-import { createServer } from "http";
-import { Server, Socket } from "socket.io";
-import dotenv from 'dotenv'; dotenv.config();
+import { Socket } from "socket.io";
+import SocketIOServer from "./SocketIOServer";
+import PacketType, { IPlayerDataPckCxt } from "./PacketType";
 
-const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  // options
-});
+const socketIOServer = new SocketIOServer();
+socketIOServer.StartServer();
 
-const connectedSockets: Socket[] = [];
-const waitingJoinGameSockets: Socket[] = [];
-const roomCnt = 0;
+// only the player is onlined
+enum PlayerState{
+    WaitingMatch,
+    InGame,
+    idle,
+}
+class Player {
+  Id: string;
+  IsMatch: boolean = false;
+  Match: Match | undefined = undefined;
+  Socket: Socket;
 
-// connected Sockets logic
-io.on("connection", (socket: Socket) => {   
-    connectedSockets.push(socket);
-}); 
-io.on("disconnect", (socket: Socket) => {
-    // remove
-    const index = connectedSockets.indexOf(socket);
-    if(index <= -1) throw new Error("remove socket which aren't add");
-    connectedSockets.splice(index, 1);
-})
- 
-// waiting join game sockets logic
-io.on("connection", (socket: Socket) => {   
-    waitingJoinGameSockets.push(socket);
-    if(waitingJoinGameSockets.length === 2){
-        // match then
-        MatchPlayer(waitingJoinGameSockets[0], waitingJoinGameSockets[1]);
-    }
-});
-io.on("disconnect", (socket: Socket) => {
-    const index = waitingJoinGameSockets.indexOf(socket);
-    if(index > -1){
-        waitingJoinGameSockets.splice(index, 1);
-    };
-});
+  constructor(id: string, socket: Socket) {
+    this.Id = id;
+    this.Socket = socket;
+  }
 
-
-if (process.env.HOST == undefined || process.env.PORT == undefined){
-    throw new Error(".env not set HOST, PORT");
-};
-httpServer.listen(process.env.PORT);    
-console.log(`listening at ${process.env.PORT}`)
-
-
-function MatchPlayer(s1: Socket, s2: Socket) {
-    
+  GetMatch(match: Match){
+      this.IsMatch = true;
+      this.Match = match;
+  }
 }
 
+class Match {
+  static Count = 0;
+  ID: string;
+  Player1: Player;
+  Player2: Player;
+  constructor(p1: Player, p2: Player) {
+    this.Player1 = p1;
+    this.Player2 = p2;
+    this.ID = `${++Match.Count}`;
+    
+    this.Player1.GetMatch(this);
+    this.Player2.GetMatch(this);
+  }
+}
+
+const PlayerMap = new Map<string, Player>(); // index by socket id
+const Matches: Match[] = [];
+
+socketIOServer.On(PacketType.Connection, (socket) => {
+  console.log(`connect cnt: ${socketIOServer.connectedSockets.length}`);
+
+  // deleget packets
+  socket.on(PacketType.PlayerData, (cxt) => handlePlayerDataPck(socket, cxt));
+  socket.on(PacketType.Disconnect, (reason) =>
+    handleDisconnect(socket, reason)
+  );
+
+  DoMatchMaking();
+});
+
+const DoMatchMaking = () => {
+  // loop all player, if two are not match then match them
+  const matchedPlayers: Player[] = [];
+  for (const [socketID, player] of PlayerMap.entries()) {
+    if (player.IsMatch === false) {
+      matchedPlayers.push(player);
+    }
+    if (matchedPlayers.length === 2) break;
+  }
+  if (matchedPlayers.length < 2) {
+    // not enough player to be match
+  } else {
+      // create new match
+    const match = new Match(matchedPlayers[0], matchedPlayers[1]);
+    Matches.push(match);
+  }
+};
+
+const handlePlayerDataPck = (socket: Socket, cxt: IPlayerDataPckCxt): void => {
+  // add player data to map
+  PlayerMap.set(socket.id, new Player(cxt.id, socket));
+};
+
+const handleDisconnect = (socket: Socket, reason: string): void => {
+  PlayerMap.delete(socket.id);
+};
