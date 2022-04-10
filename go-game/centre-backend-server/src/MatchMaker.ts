@@ -10,6 +10,7 @@ export default class MatchMaker {
 
     public Init(playerManager: PlayerManager, relayer: Relayer) {
         this.playerManager = playerManager;
+        this.relayer = relayer;
         // Add player to waiting list when request
         this.playerManager.OnPlayerRequestMatch((player: Player, requestMatchPck: RequestMatchPck) => {
             playerManager.ChangePlayerState(player.Id, PlayerState.WaitingMatch);
@@ -39,7 +40,13 @@ export default class MatchMaker {
             MethodSpecificData: {
                 packetType: PacketType.GameData
             }
-        })
+        });
+        this.playerManager.SendTicketToPlayer(p2, {
+            p2pConnectMethod: P2PConnectMethod.socketIORelay,
+            MethodSpecificData: {
+                packetType: PacketType.GameData
+            }
+        });
     }
 
     private FIFOMatching(): [Player, Player] {
