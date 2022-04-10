@@ -24,8 +24,8 @@ async function testMatch() {
     const requestMatchPck: RequestMatchPck = {};
     socket.emit(PacketType.RequestMatch, requestMatchPck);
     socket.on(PacketType.Ticket, (tickerPck: TicketPck)=>{
-        console.log(`get ticket: ${tickerPck.MethodSpecificData}, ${tickerPck.p2pConnectMethod}`);
-        if(playerId == "1") socket.emit(PacketType.GameData, "Hello from another player");
+        console.log(`get ticket: ${tickerPck.MethodSpecificData.packetType}, ${tickerPck.p2pConnectMethod}`);
+        if(Number(playerId) % 2 == 1) socket.emit(PacketType.GameData, "Hello from another player");
         else socket.on(PacketType.GameData, (data)=>console.log(`get game data: ${data}`));
     })
 }
