@@ -1,8 +1,8 @@
 import { Socket } from "socket.io";
 import SocketIOServer from "./SocketIOServer";
-import PacketType, { PlayerDataPck, RequestMatchPck } from "./PacketType";
-import { ArrayremoveItem } from "./ulti";
+import PacketType, { PlayerDataPck, RepsonseCallback, RequestMatchPck, TicketPck} from "./PacketType";
 import EventEmitter from "events";
+import { Ticket } from "./MatchMaker";
 
 class PlayerEventNames {
   static AddPlayer = "addPlayer";
@@ -13,32 +13,45 @@ type playerEventHandler = (player: Player) => void;
 export class PlayerManager {
   public players: Map<string, Player> = new Map<string, Player>();
   private socketToPlayerMap: Map<string, Player> = new Map<string, Player>();
-  private socketioServer: SocketIOServer;
+  private socketioServer!: SocketIOServer;
   private playerEvent: EventEmitter = new EventEmitter();
 
-  constructor(socketioServer: SocketIOServer) {
-    this.socketioServer = socketioServer;
+  
+  public Init(socketIOServer: SocketIOServer){
+    this.socketioServer = socketIOServer;
     this.MentainPlayers();
   }
 
-  public ChangePlayerState(playerId: string, playerState: PlayerState){
-      const player = this.players.get(playerId);
-      if(player){
-          player.state = playerState;
-      }
+  public ChangePlayerState(playerId: string, playerState: PlayerState) {
+    const player = this.players.get(playerId);
+    if (player) {
+      player.state = playerState;
+    }
+  }
+
+  public SendTicketToPlayer(player: Player, ticket: Ticket){
+    const ticketPck: TicketPck = ticket;
+    player.Socket.emit(PacketType.Ticket, ticketPck);
   }
 
   public OnPlayerRequestMatch(
-    handler: (player: Player, requestMatchPck: RequestMatchPck, ) => void,
+    handler: (player: Player, requestMatchPck: RequestMatchPck) => void,
   ): void {
+    this.PlayerActionWrap(PacketType.RequestMatch, handler);
+  }
+
+  public OnPlayerCancelMatch(handler: (player: Player)=> void): void{
+    this.PlayerActionWrap(PacketType.CancelMatch, handler);
+  }
+
+  private PlayerActionWrap(pckType: string, handler: (player: Player, args: any[])=> void){
     this.socketioServer.OnPacket(
-      PacketType.RequestMatch,
-      (socket: Socket, requestMatchPck: RequestMatchPck, callback) => {
+      pckType, (socket: Socket, args)=>{
         const player = this.socketToPlayerMap.get(socket.id);
-        if (player) handler(player, requestMatchPck);
+        if(player) handler(player, args);
         else throw new Error("socket id dont have coresponed player object");
       }
-    );
+    )
   }
 
   public OnAddPlayer(handler: playerEventHandler) {
@@ -61,18 +74,18 @@ export class PlayerManager {
         this.socketToPlayerMap.set(socket.id, player);
         this.players.set(player.Id, player);
         // emit event
-        this.playerEvent.emit(PlayerEventNames.AddPlayer, player);
+        // this.playerEvent.emit(PlayerEventNames.AddPlayer, player);
       }
     );
     // remove player when disconnect
     this.socketioServer.OnDisconnect((socket: Socket, reason: string) => {
       // emit event
       const player = this.socketToPlayerMap.get(socket.id);
-      if(player){
-          this.playerEvent.emit(PlayerEventNames.RemovePlayer, player);
-          // delete player
-          this.socketToPlayerMap.delete(socket.id);
-          this.players.delete(player.Id);
+      if (player) {
+        // this.playerEvent.emit(PlayerEventNames.RemovePlayer, player);
+        // delete player
+        this.socketToPlayerMap.delete(socket.id);
+        this.players.delete(player.Id);
       }
     });
   }

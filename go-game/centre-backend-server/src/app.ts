@@ -1,19 +1,28 @@
 import { Socket } from "socket.io";
 import SocketIOServer from "./SocketIOServer";
-import PacketType, { PlayerDataPck, RequestMatchPck } from "./PacketType";
+import PacketType, { PlayerDataPck, RepsonseCallback, RequestMatchPck, StatusCode } from "./PacketType";
 import { Player, PlayerManager } from "./PlayerManager";
+import MatchMaker from "./MatchMaker";
+import Relayer from "./Relayer";
+import EventEmitter from "events"; EventEmitter.prototype.setMaxListeners(20);
 
 const socketIOServer = new SocketIOServer();
-const playerManager = new PlayerManager(socketIOServer);
+const playerManager = new PlayerManager();
+const matchMaker = new MatchMaker();
+const relayer = new Relayer();
+socketIOServer.Init();
+playerManager.Init(socketIOServer);
+matchMaker.Init(playerManager, relayer);
+relayer.Init(socketIOServer);
 
 socketIOServer.StartServer();
 
-// test();
+test();
 
-const testConnection = () => {
+function testConnection () {
   socketIOServer.OnConnect((socket) =>
     console.log(
-      `new connection, connect cnt: ${socketIOServer.connectedSockets.length}`
+      `new connection, connect cnt: ${socketIOServer.sockets.size}`
     )
   );
   socketIOServer.OnDisconnect((socket: Socket, reason: string) =>
@@ -21,7 +30,7 @@ const testConnection = () => {
   );
 };
 
-const testPlayerData = () => {
+function testPlayerData () {
   socketIOServer.OnPacket(
     PacketType.PlayerData,
     (socket: Socket, playerData: PlayerDataPck) => {
@@ -32,7 +41,7 @@ const testPlayerData = () => {
   );
 };
 
-const testPlayerManager = () => {
+function testPlayerManager () {
   playerManager.OnAddPlayer((player: Player) =>
     console.log(`player added player id: ${player.Id}`)
   );
@@ -44,9 +53,14 @@ const testPlayerManager = () => {
       console.log(`player ${player.Id} request match`);
     }
   );
+  playerManager.OnPlayerCancelMatch(
+    (player: Player) => {
+      console.log("player cancel match");
+    }
+  )
 };
 
-const test = () => {
+function test () {
   testConnection();
   testPlayerData();
   testPlayerManager();

@@ -7,7 +7,7 @@ import PacketType from "./PacketType";
 import { ArrayremoveItem } from "./ulti";
 
 class SocketIOServer {
-  public connectedSockets: Socket[] = [];
+  public sockets: Map<string, Socket> = new Map<string, Socket>();
 
   private io: Server;
   private httpServer;
@@ -24,6 +24,9 @@ class SocketIOServer {
     // mentain list of connect  socket
     this.MentainConnectedSockets();
   }
+
+  public Init(){}
+
 
   public StartServer() {
     // check host & port is provide
@@ -60,13 +63,10 @@ class SocketIOServer {
 
   private MentainConnectedSockets() {
     // add socket to list when connect
-    this.OnConnect((socket: Socket) => this.connectedSockets.push(socket));
+    this.OnConnect((socket: Socket) => this.sockets.set(socket.id, socket));
     // remove socket on list when disconnect
     this.OnDisconnect((socket: Socket, reason: string) => {
-      this.connectedSockets = ArrayremoveItem<Socket>(
-        this.connectedSockets,
-        socket
-      );
+      this.sockets.delete(socket.id);
     });
   }
 }
