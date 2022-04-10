@@ -1,12 +1,22 @@
 class PacketType{
-    static PlayerData = "PlayerData";
     static Disconnect = "disconnect";
     static Connection = "connection";   
+    static PlayerData = "PlayerData";
+    static RequestMatch = "requestMatch";
 }
 
-interface IPlayerDataPckCxt{
+export interface PlayerDataPck{
     id: string;
 }
 
+export interface RequestMatchPck{
+
+}
+
+export interface RespondMatchPck{
+    status: string;
+}
+
+
+
 export default PacketType
-export {IPlayerDataPckCxt}
