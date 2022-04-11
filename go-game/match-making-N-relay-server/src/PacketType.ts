@@ -8,19 +8,6 @@ class PacketType {
     static Ticket = "ticket";
 }
 
-export class StatusCode {
-    static ok = "OK";
-    static error = "ERROR";
-}
-
-export interface ResponsePck {
-    status: string;
-}
-
-export interface RepsonseCallback{
-    (response: ResponsePck): void;
-} 
-
 export interface PlayerDataPck {
     id: string;
 }
@@ -36,6 +23,20 @@ export interface RespondMatchPck {
 export interface TicketPck{
     p2pConnectMethod: string;
     MethodSpecificData: any;
+}
+
+export interface GameDataPck{
+    DatatypeName: string;
+    Message: string | void;
+    Winner: number | void;
+    XIndex: number | void;
+    YIndex: number | void;
+}
+
+export class GameDataNames{
+    static HandShake: string = "handShake";
+    static PlaceStone: string = "placeStone";
+    static GameOver: string = "gameOver";
 }
 
 export default PacketType

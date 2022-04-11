@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import SocketIOServer from "./SocketIOServer";
-import PacketType, { PlayerDataPck, RepsonseCallback, RequestMatchPck, StatusCode } from "./PacketType";
+import PacketType, { PlayerDataPck, RequestMatchPck } from "./PacketType";
 import { Player, PlayerManager } from "./PlayerManager";
 import MatchMaker from "./MatchMaker";
 import Relayer from "./Relayer";

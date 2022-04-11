@@ -46,6 +46,7 @@ public class GoManager : MonoBehaviour, IGoManager
             PlaceStoneEvent -= OnPlaceStone;
             SelectBoardEvent -= OnSelectBoard;
         }
+
         void OnPlaceStone()
         {
             // switch current player
@@ -69,7 +70,7 @@ public class GoManager : MonoBehaviour, IGoManager
         _goLogic.WinEvent += OnWin;
         PlaceStoneEvent += OnPlaceStone;
         SelectBoardEvent += OnSelectBoard;
-        
+
         // white go first
         _currentPlayer = StoneType.White;
     }
@@ -86,7 +87,7 @@ public class GoManager : MonoBehaviour, IGoManager
         _board.Clear();
         _goLogic.ClearBoard();
     }
-    
+
     private void OnSelect()
     {
         // check hit anything
@@ -99,5 +100,4 @@ public class GoManager : MonoBehaviour, IGoManager
             SelectBoardEvent?.Invoke();
         }
     }
-    
 }

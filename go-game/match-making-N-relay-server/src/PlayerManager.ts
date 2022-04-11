@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import SocketIOServer from "./SocketIOServer";
-import PacketType, { PlayerDataPck, RepsonseCallback, RequestMatchPck, TicketPck} from "./PacketType";
+import PacketType, { PlayerDataPck, RequestMatchPck, TicketPck} from "./PacketType";
 import EventEmitter from "events";
 import { Ticket } from "./MatchMaker";
 
@@ -74,7 +74,7 @@ export class PlayerManager {
         this.socketToPlayerMap.set(socket.id, player);
         this.players.set(player.Id, player);
         // emit event
-        // this.playerEvent.emit(PlayerEventNames.AddPlayer, player);
+        this.playerEvent.emit(PlayerEventNames.AddPlayer, player);
       }
     );
     // remove player when disconnect
@@ -82,7 +82,7 @@ export class PlayerManager {
       // emit event
       const player = this.socketToPlayerMap.get(socket.id);
       if (player) {
-        // this.playerEvent.emit(PlayerEventNames.RemovePlayer, player);
+        this.playerEvent.emit(PlayerEventNames.RemovePlayer, player);
         // delete player
         this.socketToPlayerMap.delete(socket.id);
         this.players.delete(player.Id);

@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import dotenv from 'dotenv'; dotenv.config();
-import PacketType, { PlayerDataPck, RequestMatchPck, ResponsePck, TicketPck } from "./PacketType";
+import PacketType, { GameDataNames, PlayerDataPck, RequestMatchPck, TicketPck } from "./PacketType";
 
 if (process.env.HOST == undefined || process.env.PORT == undefined) {
     throw new Error(".env not set HOST, PORT");
@@ -25,8 +25,12 @@ async function testMatch() {
     socket.emit(PacketType.RequestMatch, requestMatchPck);
     socket.on(PacketType.Ticket, (tickerPck: TicketPck)=>{
         console.log(`get ticket: ${tickerPck.MethodSpecificData.packetType}, ${tickerPck.p2pConnectMethod}`);
-        if(Number(playerId) % 2 == 1) socket.emit(PacketType.GameData, "Hello from another player");
-        else socket.on(PacketType.GameData, (data)=>console.log(`get game data: ${data}`));
+
+        // socket.emit(PacketType.GameData, {DatatypeName: GameDataNames.HandShake, });
+        socket.on(PacketType.GameData, (data)=>{
+            console.log(`get game data: ${data}`);
+            const dd = data;
+        });
     })
 }
 
