@@ -1,13 +1,13 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 public interface IMatchMaker
 {
     bool HaveRegister { get; }
     event Action<Ticket> GetTicketEvent;
-    Task RegisterLocalPlayer(PlayerData localPlayerData);
-    Task RequestMatch();
+    void RegisterLocalPlayer(PlayerData localPlayerData);
+    void RequestMatch();
 }
 
 public class MatchMaker : MonoBehaviour, IMatchMaker
@@ -21,29 +21,29 @@ public class MatchMaker : MonoBehaviour, IMatchMaker
         GetTicketEvent?.Invoke(new Ticket(ticketPck.p2pConnectMethod));
     }
 
-    public async Task RegisterLocalPlayer(PlayerData localPlayerData)
+    public void RegisterLocalPlayer(PlayerData localPlayerData)
     {
         Debug.Assert(MatchNRelaySocket.Singleton != null);
         if (MatchNRelaySocket.Singleton.IsConnected)
         {
-            await MatchNRelaySocket.Singleton.SendPlayerData(localPlayerData);
+            MatchNRelaySocket.Singleton.SendPlayerData(localPlayerData);
             HaveRegister = true;
         }
         else
         {
-            MatchNRelaySocket.Singleton.ConnectedEvent += async () =>
+            MatchNRelaySocket.Singleton.ConnectedEvent += () =>
             {
-                await MatchNRelaySocket.Singleton.SendPlayerData(localPlayerData);
+                MatchNRelaySocket.Singleton.SendPlayerData(localPlayerData);
                 HaveRegister = true;
             };
         }
     }
     
-    public async Task RequestMatch()
+    public void RequestMatch()
     {
         
         Debug.Assert(HaveRegister);
-        await MatchNRelaySocket.Singleton.RequestMatch();
+        MatchNRelaySocket.Singleton.RequestMatch();
     }
     
     private void Start()
@@ -55,14 +55,16 @@ public class MatchMaker : MonoBehaviour, IMatchMaker
     {
         MatchNRelaySocket.Singleton.GetTicketPckEvent -= OnGetTicketPck;
     }
+    
+    
 }
 
 public class Ticket
 {
-    public string p2pConnectMethod { get; private set; }
+    public string P2PConnectMethod { get; private set; }
 
     public Ticket(string p2PConnectMethod)
     {
-        p2pConnectMethod = p2PConnectMethod;
+        P2PConnectMethod = p2PConnectMethod;
     }
 }

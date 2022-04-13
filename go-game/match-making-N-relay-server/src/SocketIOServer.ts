@@ -4,7 +4,6 @@ import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
 dotenv.config();
 import PacketType from "./PacketType";
-import { ArrayremoveItem } from "./ulti";
 
 class SocketIOServer {
   public sockets: Map<string, Socket> = new Map<string, Socket>();

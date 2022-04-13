@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public interface IGameManager
@@ -9,10 +11,11 @@ public interface IGameManager
 [RequireComponent(typeof(IGoManager))]
 public class GameManager : MonoBehaviour, IGameManager
 {
-    [Header("Dependencies")] private IGoManager _goManager;
+    private IGoManager _goManager;
     private IUIManager _uiManager;
     private ILocalPlayer _localPlayer;
     private IMatchMaker _matchMaker;
+    private PreGoGameSetUp _preGoGameSetUp;
 
     private void Awake()
     {
@@ -20,33 +23,31 @@ public class GameManager : MonoBehaviour, IGameManager
         _uiManager = GetComponent<IUIManager>();
         _matchMaker = GetComponent<IMatchMaker>();
         _localPlayer = GetComponent<ILocalPlayer>();
+        _preGoGameSetUp = GetComponent<PreGoGameSetUp>();
         _goManager.GoGameEndEvent += OnGoGameEnd;
     }
 
-    private async void Start()
+    private void Start()
     {
         _uiManager.ShowStartPage();
-        await _matchMaker.RegisterLocalPlayer(_localPlayer.Data);
+        _matchMaker.RegisterLocalPlayer(_localPlayer.Data);
     }
 
-    public async void FindMatchNStartGame()
+    public void FindMatchNStartGame()
     {
-        print("Find match and start game");
-        // Request match
-        await _matchMaker.RequestMatch();
-
-        // wait for ticket
-        void OnGetTicket(Ticket ticket)
-        {
-            // get ticket and know we can use p2p relay and relay have set up
-            StartGame();
-            _matchMaker.GetTicketEvent -= OnGetTicket;
-        }
-
-        _matchMaker.GetTicketEvent += OnGetTicket;
+        StartCoroutine(nameof(FinMatchNStartGameWrapper));
     }
 
-    private void StartGame()
+    private IEnumerator FinMatchNStartGameWrapper()
+    {
+        // Request match
+        print("request match");
+        Task.Run(_matchMaker.RequestMatch);
+        // pre game set up
+        yield return _preGoGameSetUp.DoCoroutine();
+    }
+
+    public void StartGame()
     {
         // clean up
         _goManager.EndGoGame();

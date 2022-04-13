@@ -22,13 +22,6 @@ export class PlayerManager {
     this.MentainPlayers();
   }
 
-  public ChangePlayerState(playerId: string, playerState: PlayerState) {
-    const player = this.players.get(playerId);
-    if (player) {
-      player.state = playerState;
-    }
-  }
-
   public SendTicketToPlayer(player: Player, ticket: Ticket){
     const ticketPck: TicketPck = ticket;
     player.Socket.emit(PacketType.Ticket, ticketPck);
@@ -44,15 +37,6 @@ export class PlayerManager {
     this.PlayerActionWrap(PacketType.CancelMatch, handler);
   }
 
-  private PlayerActionWrap(pckType: string, handler: (player: Player, args: any[])=> void){
-    this.socketioServer.OnPacket(
-      pckType, (socket: Socket, args)=>{
-        const player = this.socketToPlayerMap.get(socket.id);
-        if(player) handler(player, args);
-        else throw new Error("socket id dont have coresponed player object");
-      }
-    )
-  }
 
   public OnAddPlayer(handler: playerEventHandler) {
     this.playerEvent.on(PlayerEventNames.AddPlayer, handler);
@@ -89,17 +73,20 @@ export class PlayerManager {
       }
     });
   }
+
+  private PlayerActionWrap(pckType: string, handler: (player: Player, args: any[])=> void){
+    this.socketioServer.OnPacket(
+      pckType, (socket: Socket, args)=>{
+        const player = this.socketToPlayerMap.get(socket.id);
+        if(player) handler(player, args);
+        else throw new Error("socket id dont have coresponed player object");
+      }
+    )
+  }
 }
 
-// only the player is onlined
-export enum PlayerState {
-  WaitingMatch,
-  InGame,
-  idle,
-}
 export class Player {
   Id: string;
-  state: PlayerState = PlayerState.idle;
   Socket: Socket;
 
   constructor(id: string, socket: Socket) {

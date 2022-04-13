@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.CompilerServices;
+using System.Collections;
 using System.Threading.Tasks;
-using UnityEngine;
 using dotenv.net;
 using SocketIOClient;
+using UnityEngine;
 
 
 /// <summary>
@@ -16,69 +14,118 @@ public class MatchNRelaySocket : MonoBehaviour
 {
     public event Action ConnectedEvent; // emit when socket is readied
     public event Action<TicketPck> GetTicketPckEvent;
-    public event Action<SocketIOResponse> PeerSocketRecvEvent;
+    public event Action<GameDataPck> PeerRecvEvent;
     public bool IsConnected => _socket.Connected;
     public static MatchNRelaySocket Singleton { get; private set; }
-    
-    private SocketIO _socket;
 
-    public async Task SendPlayerData(PlayerData playerData)
+    private SocketIO _socket;
+    private TicketPck _ticketPck = null;
+    private GameDataPck _gameDataPck = null;
+
+    public void SendPlayerData(PlayerData playerData)
     {
         Debug.Assert(IsConnected);
         PlayerDataPck playerDataPck = new PlayerDataPck(playerData.id);
-        await _socket.EmitAsync(PacketNames.PlayerData, playerDataPck);
+        Task.Run(() => _socket.EmitAsync(PacketNames.PlayerData, playerDataPck));
     }
 
-    public async Task RequestMatch()
+    public void RequestMatch()
     {
         Debug.Assert(IsConnected);
-        await _socket.EmitAsync(PacketNames.RequestMatch, new RequestMatchPck());
+        Task.Run(() => _socket.EmitAsync(PacketNames.RequestMatch, new RequestMatchPck()));
     }
 
-    public async Task PeerSocketSend(GameDataPck gameDataPck)
+    public void PeerSend(GameDataPck gameDataPck)
     {
-        await _socket.EmitAsync(PacketNames.GameData, gameDataPck);
+        Task.Run(() => _socket.EmitAsync(PacketNames.GameData, gameDataPck));
     }
 
-    public async Task CancelMatch()
+    public void CancelMatch()
     {
         Debug.Assert(IsConnected);
-        await _socket.EmitAsync(PacketNames.CancelMatch, "");
+        Task.Run(() => _socket.EmitAsync(PacketNames.CancelMatch, ""));
     }
-    
-    private async void Awake()
+
+    private void Awake()
     {
         // singleton
         if (Singleton == null) Singleton = this;
         // create socket
         (string host, string port) = GetHostNPort();
         _socket = new SocketIO($"http://{host}:{port}");
-        
-        // emit event when readied(connected to server)
-        _socket.OnConnected += (sender, args) =>
-        {
-            print("connect to server");
-            _socket.On(PacketNames.Ticket, (res) =>
-            {
-                TicketPck ticketPck = res.GetValue<TicketPck>();
-                GetTicketPckEvent?.Invoke(ticketPck);
-            });
-            _socket.On(PacketNames.GameData, (res) =>
-            {
-                PeerSocketRecvEvent?.Invoke(res);
-            });
-            ConnectedEvent?.Invoke();
-        };
-        
+
         // connect to server
-        await _socket.ConnectAsync();
+        Task.Run(() => _socket.ConnectAsync());
     }
 
-    private async void OnDestroy()
+    private void Start()
+    {
+        StartCoroutine(MainThreadBusyWaitingConnect());
+        StartCoroutine(MainThreadBusyWaitingTicketPck());
+        StartCoroutine(MainThreadBusyWaitingGameDataPck());
+    }
+
+    private IEnumerator MainThreadBusyWaitingConnect()
+    {
+        // busy wait until connected to server
+        while (!IsConnected)
+        {
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        // emit connect event
+        print("connect to server");
+        _socket.On(PacketNames.Ticket, (res) =>
+        {
+            TicketPck ticketPck = res.GetValue<TicketPck>();
+            _ticketPck = ticketPck;
+        });
+        _socket.On(PacketNames.GameData, (res) =>
+        {
+            GameDataPck pck = res.GetValue<GameDataPck>();
+            _gameDataPck = pck;
+
+        });
+        ConnectedEvent?.Invoke();
+    }
+
+    private IEnumerator MainThreadBusyWaitingTicketPck()
+    {
+        while (true)
+        {
+            while (_ticketPck == null)
+            {
+                yield return new WaitForSeconds(0.2f);
+            }
+
+            print("get ticket");
+            //emit event
+            GetTicketPckEvent?.Invoke(_ticketPck);
+            // set null again
+            _ticketPck = null;
+        }
+    }
+
+    private IEnumerator MainThreadBusyWaitingGameDataPck()
+    {
+        while (true)
+        {
+            while (_gameDataPck == null)
+            {
+                yield return new WaitForSeconds(0.2f);
+            }
+            print($"get peer data: {_gameDataPck.DatatypeName}");
+            PeerRecvEvent?.Invoke(_gameDataPck);
+            _gameDataPck = null;
+        }
+    }
+
+    
+    private void OnDestroy()
     {
         if (_socket != null)
         {
-            await _socket.DisconnectAsync();
+            Task.Run(()=>_socket.DisconnectAsync());
         }
     }
 

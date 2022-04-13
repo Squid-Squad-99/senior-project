@@ -1,5 +1,5 @@
 import PacketType, { RequestMatchPck } from "./PacketType";
-import { Player, PlayerManager, PlayerState } from "./PlayerManager"
+import { Player, PlayerManager } from "./PlayerManager"
 import { ArrayremoveItem } from "./ulti";
 import Relayer from "./Relayer";
 
@@ -13,7 +13,6 @@ export default class MatchMaker {
         this.relayer = relayer;
         // Add player to waiting list when request
         this.playerManager.OnPlayerRequestMatch((player: Player, requestMatchPck: RequestMatchPck) => {
-            playerManager.ChangePlayerState(player.Id, PlayerState.WaitingMatch);
             this.matchWaitingList.push(player.Id);
             // do match making when player are added
             this.DoMatchMaking();
@@ -35,16 +34,20 @@ export default class MatchMaker {
         // set up p2p connection
         this.relayer.P2PRelay(p1.Socket, p2.Socket);
         // give ticket to player
-        this.playerManager.SendTicketToPlayer(p1, {
+        this.SendTicketToPlayers(p1, p2);
+    }
+
+    private SendTicketToPlayers(p1: Player, p2: Player) {
+        this.playerManager!.SendTicketToPlayer(p1, {
             p2pConnectMethod: P2PConnectMethod.socketIORelay,
             MethodSpecificData: {
-                packetType: PacketType.GameData
+                packetType: PacketType.RelayData
             }
         });
-        this.playerManager.SendTicketToPlayer(p2, {
+        this.playerManager!.SendTicketToPlayer(p2, {
             p2pConnectMethod: P2PConnectMethod.socketIORelay,
             MethodSpecificData: {
-                packetType: PacketType.GameData
+                packetType: PacketType.RelayData
             }
         });
     }
@@ -55,15 +58,13 @@ export default class MatchMaker {
         this.matchWaitingList.splice(0, 2);
         return _pp;
     }
+
+
 }
 
 export interface Ticket {
     p2pConnectMethod: string;
     MethodSpecificData: any;
-}
-
-interface SocketIORelayData {
-    channelName: string;
 }
 
 class P2PConnectMethod {

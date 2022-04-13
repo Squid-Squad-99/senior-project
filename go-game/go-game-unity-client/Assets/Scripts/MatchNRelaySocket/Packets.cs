@@ -1,4 +1,5 @@
 
+using System;
 using System.Net.NetworkInformation;
 
 public class PacketNames
@@ -37,9 +38,11 @@ public class TicketPck
 
 public class GameDataNames
 {
-    public static string HandShake = "handShake";
-    public static string PlaceStone = "placeStone";
-    public static string GameOver = "gameOver";
+    public const string HandShake = "handShake";
+    public const string DecideColor = "decideColor";
+    public const string ConfirmColor = "confirmColor";
+    public const string PlaceStone = "placeStone";
+    public const string GameOver = "gameOver";
 
 }
 
@@ -47,16 +50,20 @@ public class GameDataPck
 {
     public string DatatypeName { get; set; }
     public string Message { get; set; }
+    public string[] IDs { get; set; }
+    public StoneType PeerType { get; set; }
     public StoneType Winner { get; set; }
     public int XIndex { get; set; }
     public int YIndex { get; set; }
 
-    public GameDataPck(string datatypeName, string message="", StoneType winner=0, int xIndex=-1, int yIndex=-1)
+    public GameDataPck(string datatypeName, string message="", StoneType winner=0, StoneType peerType=0, int xIndex=-1, int yIndex=-1, string[] ids = null)
     {
         DatatypeName = datatypeName;
         Message = message;
         Winner = winner;
         XIndex = xIndex;
         YIndex = yIndex;
+        IDs = ids;
+        PeerType = peerType;
     }
 }

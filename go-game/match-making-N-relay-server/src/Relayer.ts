@@ -21,10 +21,10 @@ export default class Relayer{
     }
 
     private Relaying() {
-        this.socketIOServer.OnPacket(PacketType.GameData, (socket: Socket, args)=>{
+        this.socketIOServer.OnPacket(PacketType.RelayData, (socket: Socket, args)=>{
             if(this.socketToChannel.has(socket.id)){
                 const channel = this.channels.get(this.socketToChannel.get(socket.id)!);
-                socket.to(channel!.name).emit(PacketType.GameData, args);
+                socket.to(channel!.name).emit(PacketType.RelayData, args);
             }
         });
     }
@@ -33,8 +33,8 @@ export default class Relayer{
         // clean up if already have those sockets
         this.cleanUp(s1);
         this.cleanUp(s2);
-        // create game channel
-        const name = `GameChannel${this.channels.size+1}`; 
+        // create Relay channel
+        const name = `RelayChannel${this.channels.size+1}`; 
         const channel: ChannelData = {name: name, s1ID: s1.id, s2ID: s2.id};
         // add to channel
         this.channels.set(name, channel);

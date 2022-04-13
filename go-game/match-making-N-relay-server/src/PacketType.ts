@@ -4,7 +4,7 @@ class PacketType {
     static PlayerData = "PlayerData";
     static RequestMatch = "requestMatch";
     static CancelMatch = "cancelMatch";
-    static GameData = "gameData";
+    static RelayData = "relayData";
     static Ticket = "ticket";
 }
 
