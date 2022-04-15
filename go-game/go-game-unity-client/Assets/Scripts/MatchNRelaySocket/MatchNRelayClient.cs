@@ -6,44 +6,49 @@ using SocketIOClient;
 using UnityEngine;
 
 
+public interface IMatchNRelayClient
+{
+    event Action ConnectedEvent;
+    event Action<TicketPck> GetTicketPckEvent;
+    event Action<Byte[]> RelayRecvEvent;
+    bool IsConnected { get; }
+    void SendPlayerData(PlayerData playerData);
+    void RequestMatch();
+    void RelaySend(Byte[] payLoad);
+}
+
 /// <summary>
 /// socket to match making server & relay server
 /// try to connect to server when load
 /// </summary>
-public class MatchNRelaySocket : MonoBehaviour
+public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
 {
     public event Action ConnectedEvent; // emit when socket is readied
     public event Action<TicketPck> GetTicketPckEvent;
-    public event Action<GameDataPck> PeerRecvEvent;
+    public event Action<Byte[]> RelayRecvEvent;
     public bool IsConnected => _socket.Connected;
-    public static MatchNRelaySocket Singleton { get; private set; }
+    public static MatchNRelayClient Singleton { get; private set; }
 
     private SocketIO _socket;
     private TicketPck _ticketPck = null;
-    private GameDataPck _gameDataPck = null;
+    private Byte[] _relayPayLoad = null;
 
     public void SendPlayerData(PlayerData playerData)
     {
         Debug.Assert(IsConnected);
         PlayerDataPck playerDataPck = new PlayerDataPck(playerData.id);
-        Task.Run(() => _socket.EmitAsync(PacketNames.PlayerData, playerDataPck));
+        Task.Run(() => _socket.EmitAsync(SocketIOEventNames.PlayerData, playerDataPck));
     }
 
     public void RequestMatch()
     {
         Debug.Assert(IsConnected);
-        Task.Run(() => _socket.EmitAsync(PacketNames.RequestMatch, new RequestMatchPck()));
+        Task.Run(() => _socket.EmitAsync(SocketIOEventNames.RequestMatch, new RequestMatchPck()));
     }
 
-    public void PeerSend(GameDataPck gameDataPck)
+    public void RelaySend(Byte[] payLoad)
     {
-        Task.Run(() => _socket.EmitAsync(PacketNames.GameData, gameDataPck));
-    }
-
-    public void CancelMatch()
-    {
-        Debug.Assert(IsConnected);
-        Task.Run(() => _socket.EmitAsync(PacketNames.CancelMatch, ""));
+        Task.Run(() => _socket.EmitAsync(SocketIOEventNames.RelayData, payLoad));
     }
 
     private void Awake()
@@ -68,23 +73,19 @@ public class MatchNRelaySocket : MonoBehaviour
     private IEnumerator MainThreadBusyWaitingConnect()
     {
         // busy wait until connected to server
-        while (!IsConnected)
-        {
-            yield return new WaitForSeconds(0.2f);
-        }
+        yield return new WaitUntil(() => IsConnected);
 
         // emit connect event
         print("connect to server");
-        _socket.On(PacketNames.Ticket, (res) =>
+        _socket.On(SocketIOEventNames.Ticket, (res) =>
         {
             TicketPck ticketPck = res.GetValue<TicketPck>();
             _ticketPck = ticketPck;
         });
-        _socket.On(PacketNames.GameData, (res) =>
+        _socket.On(SocketIOEventNames.RelayData, (res) =>
         {
-            GameDataPck pck = res.GetValue<GameDataPck>();
-            _gameDataPck = pck;
-
+            Byte[] playLoad = res.GetValue<Byte[]>();
+            _relayPayLoad = playLoad;
         });
         ConnectedEvent?.Invoke();
     }
@@ -93,13 +94,11 @@ public class MatchNRelaySocket : MonoBehaviour
     {
         while (true)
         {
-            while (_ticketPck == null)
-            {
-                yield return new WaitForSeconds(0.2f);
-            }
+            yield return new WaitUntil(() => _ticketPck != null);
 
             print("get ticket");
             //emit event
+
             GetTicketPckEvent?.Invoke(_ticketPck);
             // set null again
             _ticketPck = null;
@@ -110,22 +109,19 @@ public class MatchNRelaySocket : MonoBehaviour
     {
         while (true)
         {
-            while (_gameDataPck == null)
-            {
-                yield return new WaitForSeconds(0.2f);
-            }
-            print($"get peer data: {_gameDataPck.DatatypeName}");
-            PeerRecvEvent?.Invoke(_gameDataPck);
-            _gameDataPck = null;
+            yield return new WaitUntil(() => _relayPayLoad != null);
+
+            print($"get peer data");
+            RelayRecvEvent?.Invoke(_relayPayLoad);
+            _relayPayLoad = null;
         }
     }
 
-    
     private void OnDestroy()
     {
         if (_socket != null)
         {
-            Task.Run(()=>_socket.DisconnectAsync());
+            Task.Run(() => _socket.DisconnectAsync());
         }
     }
 

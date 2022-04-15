@@ -3,48 +3,46 @@ using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public interface IGameManager
-{
-    void FindMatchNStartGame();
-}
-
-[RequireComponent(typeof(IGoManager))]
-public class GameManager : MonoBehaviour, IGameManager
+public class GameManager : MonoBehaviour
 {
     private IGoManager _goManager;
     private IUIManager _uiManager;
-    private ILocalPlayer _localPlayer;
+    private IPlayer _localPlayer;
     private IMatchMaker _matchMaker;
-    private PreGoGameSetUp _preGoGameSetUp;
+    private IRelayer _relayer;
+    private PreGoGameNetworkCommunication _preGoGameNetworkCommunication;
 
     private void Awake()
     {
         _goManager = GetComponent<IGoManager>();
         _uiManager = GetComponent<IUIManager>();
+        _localPlayer = GetComponent<IPlayer>();
         _matchMaker = GetComponent<IMatchMaker>();
-        _localPlayer = GetComponent<ILocalPlayer>();
-        _preGoGameSetUp = GetComponent<PreGoGameSetUp>();
+        _relayer = GetComponent<IRelayer>();
+        _preGoGameNetworkCommunication = GetComponent<PreGoGameNetworkCommunication>();
         _goManager.GoGameEndEvent += OnGoGameEnd;
     }
 
     private void Start()
     {
+        // init UI
         _uiManager.ShowStartPage();
-        _matchMaker.RegisterLocalPlayer(_localPlayer.Data);
+        // prepare match making
+        _matchMaker.RegisterPlayer(_localPlayer.Data);
     }
 
-    public void FindMatchNStartGame()
+    public void FindMatchNStartGoGame()
     {
-        StartCoroutine(nameof(FinMatchNStartGameWrapper));
-    }
+        // starting pre go game communication
+        // 1. request match
+        // 2. get ticket
+        // 3. communicate with peer
+        StartCoroutine(DoCoroutine());
 
-    private IEnumerator FinMatchNStartGameWrapper()
-    {
-        // Request match
-        print("request match");
-        Task.Run(_matchMaker.RequestMatch);
-        // pre game set up
-        yield return _preGoGameSetUp.DoCoroutine();
+        IEnumerator DoCoroutine()
+        {
+            yield return _preGoGameNetworkCommunication.DoCoroutine();
+        }
     }
 
     public void StartGame()

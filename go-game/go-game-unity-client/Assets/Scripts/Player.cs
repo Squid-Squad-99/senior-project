@@ -2,12 +2,13 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public interface ILocalPlayer
+public interface IPlayer
 {
     PlayerData Data { get; }
 }
 
-public class LocalPlayer : MonoBehaviour, ILocalPlayer
+
+public class Player : MonoBehaviour, IPlayer
 {
     
     public PlayerData Data { get; private set; }
@@ -18,4 +19,14 @@ public class LocalPlayer : MonoBehaviour, ILocalPlayer
         Data = new PlayerData(_id);
     }
 
+}
+
+public class PlayerData
+{
+    public String id { get; private set; }
+
+    public PlayerData(String id)
+    {
+        this.id = id;
+    }
 }

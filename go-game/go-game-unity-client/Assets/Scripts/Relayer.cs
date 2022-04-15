@@ -1,22 +1,36 @@
 using System;
 using UnityEngine;
 
-public class Relayer : MonoBehaviour
+public interface IRelayer
 {
-    public event Action<GameDataPck> RecvEvent;
+    event Action<Byte[]> RecvEvent;
+    void Send(Byte[] payLoad);
+}
 
-    public void Send(GameDataPck gameDataPck)
+[RequireComponent(typeof(IMatchNRelayClient))]
+public class Relayer : MonoBehaviour, IRelayer
+{
+    public event Action<Byte[]> RecvEvent;
+    private IMatchNRelayClient _matchNRelayClient;
+
+    public void Send(Byte[] payload)
     {
-        _matchNRelaySocket.PeerSend(gameDataPck);
+        _matchNRelayClient.RelaySend(payload);
     }
 
-    
-    private MatchNRelaySocket _matchNRelaySocket;
-    private void Start()
+    private void Awake()
     {
-        _matchNRelaySocket = MatchNRelaySocket.Singleton;
-        Debug.Assert(_matchNRelaySocket != null);
+        _matchNRelayClient = GetComponent<IMatchNRelayClient>();
+        _matchNRelayClient.RelayRecvEvent += OnRelayRecv;
+    }
 
-        _matchNRelaySocket.PeerRecvEvent += (gameDataPck) => RecvEvent?.Invoke(gameDataPck);
+    private void OnRelayRecv(byte[] payload)
+    {
+        RecvEvent?.Invoke(payload);
+    }
+
+    private void OnDestroy()
+    {
+        _matchNRelayClient.RelayRecvEvent -= OnRelayRecv;
     }
 }

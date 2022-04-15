@@ -6,57 +6,62 @@ public interface IMatchMaker
 {
     bool HaveRegister { get; }
     event Action<Ticket> GetTicketEvent;
-    void RegisterLocalPlayer(PlayerData localPlayerData);
+    void RegisterPlayer(PlayerData playerData);
     void RequestMatch();
 }
 
+[RequireComponent(typeof(IMatchNRelayClient))]
 public class MatchMaker : MonoBehaviour, IMatchMaker
 {
-    // TODO: need to make sure socket is connected
     public bool HaveRegister { get; private set; }
     public event Action<Ticket> GetTicketEvent;
+    private IMatchNRelayClient _matchNRelayClient;
+
+    public void RegisterPlayer(PlayerData playerData)
+    {
+        StartCoroutine(DoCoroutine());
+
+        IEnumerator DoCoroutine()
+        {
+            yield return new WaitUntil(() => _matchNRelayClient.IsConnected);
+            _matchNRelayClient.SendPlayerData(playerData);
+            HaveRegister = true;
+        }
+    }
+
+
+    public void RequestMatch()
+    {
+        StartCoroutine(DoCoroutine());
+
+        IEnumerator DoCoroutine()
+        {
+            yield return new WaitUntil(() => _matchNRelayClient.IsConnected);
+            Debug.Assert(HaveRegister);
+            _matchNRelayClient.RequestMatch();
+        }
+    }
+
+    private void Awake()
+    {
+        _matchNRelayClient = GetComponent<IMatchNRelayClient>();
+        _matchNRelayClient.ConnectedEvent += OnConnectMatchServer;
+    }
+
+    private void OnConnectMatchServer()
+    {
+        _matchNRelayClient.GetTicketPckEvent += OnGetTicketPck;
+    }
 
     private void OnGetTicketPck(TicketPck ticketPck)
     {
-        GetTicketEvent?.Invoke(new Ticket(ticketPck.p2pConnectMethod));
-    }
-
-    public void RegisterLocalPlayer(PlayerData localPlayerData)
-    {
-        Debug.Assert(MatchNRelaySocket.Singleton != null);
-        if (MatchNRelaySocket.Singleton.IsConnected)
-        {
-            MatchNRelaySocket.Singleton.SendPlayerData(localPlayerData);
-            HaveRegister = true;
-        }
-        else
-        {
-            MatchNRelaySocket.Singleton.ConnectedEvent += () =>
-            {
-                MatchNRelaySocket.Singleton.SendPlayerData(localPlayerData);
-                HaveRegister = true;
-            };
-        }
-    }
-    
-    public void RequestMatch()
-    {
-        
-        Debug.Assert(HaveRegister);
-        MatchNRelaySocket.Singleton.RequestMatch();
-    }
-    
-    private void Start()
-    {
-        MatchNRelaySocket.Singleton.GetTicketPckEvent+= OnGetTicketPck;
+        GetTicketEvent?.Invoke(new Ticket(ticketPck.P2PConnectMethod));
     }
 
     private void OnDestroy()
     {
-        MatchNRelaySocket.Singleton.GetTicketPckEvent -= OnGetTicketPck;
+        if (_matchNRelayClient != null) _matchNRelayClient.GetTicketPckEvent -= OnGetTicketPck;
     }
-    
-    
 }
 
 public class Ticket
