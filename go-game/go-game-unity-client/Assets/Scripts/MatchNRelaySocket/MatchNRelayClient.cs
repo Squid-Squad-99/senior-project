@@ -52,12 +52,22 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
 
     private void Awake()
     {
+        string url = "";
         // create socket
-        (string host, string port) = GetHostNPort();
-        _socket = new SocketIO($"http://{host}:{port}");
+        if (Application.isEditor)
+        {
+            (string host, string port) = GetHostNPort();
+            url = $"http://{host}:{port}";
+        }
+        else
+        {
+            url = NetworkSetting.URL;
+        }
+
+        _socket = new SocketIO(url);
 
         // connect to server
-        print($"try to connect: http://{host}:{port}");
+        print($"try to connect: {url}");
         Task.Run(() => _socket.ConnectAsync());
     }
 
@@ -131,7 +141,7 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         {
             throw new ArgumentException(".env not found or not have host, port value");
         }
-        
+
         return new Tuple<string, string>(host, port);
     }
 }
