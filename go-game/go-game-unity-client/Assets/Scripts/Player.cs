@@ -4,29 +4,14 @@ using UnityEngine;
 
 public interface IPlayer
 {
-    PlayerData Data { get; }
+    string Id { get; }
 }
 
 
 public class Player : MonoBehaviour, IPlayer
 {
-    
-    public PlayerData Data { get; private set; }
+    public string Id => _id;
     [SerializeField] private string _id;
 
-    private void Awake()
-    {
-        Data = new PlayerData(_id);
-    }
 
-}
-
-public class PlayerData
-{
-    public String id { get; private set; }
-
-    public PlayerData(String id)
-    {
-        this.id = id;
-    }
 }

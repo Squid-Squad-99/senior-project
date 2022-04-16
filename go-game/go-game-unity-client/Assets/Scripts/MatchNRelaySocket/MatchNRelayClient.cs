@@ -12,7 +12,7 @@ public interface IMatchNRelayClient
     event Action<TicketPck> GetTicketPckEvent;
     event Action<string> RelayRecvEvent;
     bool IsConnected { get; }
-    void SendPlayerData(PlayerData playerData);
+    void SendPlayerData(IPlayer player);
     void RequestMatch();
     void RelaySend(string payLoad);
 }
@@ -32,10 +32,10 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
     private TicketPck _ticketPck = null;
     private string _relayPayLoad = null;
 
-    public void SendPlayerData(PlayerData playerData)
+    public void SendPlayerData(IPlayer player)
     {
         Debug.Assert(IsConnected);
-        PlayerDataPck playerDataPck = new PlayerDataPck(playerData.id);
+        PlayerDataPck playerDataPck = new PlayerDataPck(player.Id);
         Task.Run(() => _socket.EmitAsync(SocketIOEventNames.PlayerData, playerDataPck));
     }
 
@@ -57,6 +57,7 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         _socket = new SocketIO($"http://{host}:{port}");
 
         // connect to server
+        print($"try to connect: http://{host}:{port}");
         Task.Run(() => _socket.ConnectAsync());
     }
 
@@ -130,7 +131,7 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         {
             throw new ArgumentException(".env not found or not have host, port value");
         }
-
+        
         return new Tuple<string, string>(host, port);
     }
 }

@@ -6,7 +6,7 @@ public interface IMatchMaker
 {
     bool HaveRegister { get; }
     event Action<Ticket> GetTicketEvent;
-    void RegisterPlayer(PlayerData playerData);
+    void RegisterPlayer(IPlayer player);
     void RequestMatch();
 }
 
@@ -17,14 +17,14 @@ public class MatchMaker : MonoBehaviour, IMatchMaker
     public event Action<Ticket> GetTicketEvent;
     private IMatchNRelayClient _matchNRelayClient;
 
-    public void RegisterPlayer(PlayerData playerData)
+    public void RegisterPlayer(IPlayer player)
     {
         StartCoroutine(DoCoroutine());
 
         IEnumerator DoCoroutine()
         {
             yield return new WaitUntil(() => _matchNRelayClient.IsConnected);
-            _matchNRelayClient.SendPlayerData(playerData);
+            _matchNRelayClient.SendPlayerData(player);
             HaveRegister = true;
         }
     }

@@ -1,24 +1,24 @@
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using GoGame;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private IGoManager _goManager;
+    private IHandleInGoGame _handleInGoGame;
     private IUIManager _uiManager;
     private IPlayer _localPlayer;
     private IMatchMaker _matchMaker;
-    private HandlePreGoGame _handleHandlePreGoGame;
-
+    private GoGameHandler _goGameHandler;
+    
     private void Awake()
     {
-        _goManager = GetComponent<IGoManager>();
+        _handleInGoGame = GetComponent<IHandleInGoGame>();
         _uiManager = GetComponent<IUIManager>();
         _localPlayer = GetComponent<IPlayer>();
         _matchMaker = GetComponent<IMatchMaker>();
-        _handleHandlePreGoGame = GetComponent<HandlePreGoGame>();
-        _goManager.GoGameEndEvent += OnGoGameEnd;
+        _goGameHandler = GetComponent<GoGameHandler>();
+        _handleInGoGame.GoGameEndEvent += OnHandleInGoGameEnd;
     }
 
     private void Start()
@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
         // init UI
         _uiManager.ShowStartPage();
         // prepare match making
-        _matchMaker.RegisterPlayer(_localPlayer.Data);
+        _matchMaker.RegisterPlayer(_localPlayer);
     }
 
     public void FindMatchNStartGoGame()
@@ -39,20 +39,21 @@ public class GameManager : MonoBehaviour
 
         IEnumerator DoCoroutine()
         {
-            yield return _handleHandlePreGoGame.DoCoroutine();
+            yield return _goGameHandler.PreGoGameRoutine();
+            StartGame();
         }
     }
 
     public void StartGame()
     {
         // clean up
-        _goManager.EndGoGame();
+        _handleInGoGame.EndGoGame();
         _uiManager.HideAllPage();
         // start game
-        _goManager.StartGoGame();
+        _goGameHandler.StartGoGame();
     }
 
-    private void OnGoGameEnd(StoneType winPlayer)
+    private void OnHandleInGoGameEnd(StoneType winPlayer)
     {
         _uiManager.ShowGoGameOverPage(winPlayer);
     }

@@ -8,6 +8,8 @@ namespace GoGameProtocol
     public class GamePacketSocket : MonoBehaviour
     {
         public event Action<HandShakePck> GetHandShakePckEvent;
+        public event Action<PlaceStonePck> GetPlaceStonePckEvent;
+        
 
         private IP2PSocket _p2PSocket;
 
@@ -25,6 +27,7 @@ namespace GoGameProtocol
 
         private void OnP2PSocketRecv(string payload)
         {
+            print($"get peer payload: {payload}");
             try
             {
                 GamePck gamePck = JsonSerializer.Deserialize<GamePck>(payload);
@@ -40,6 +43,10 @@ namespace GoGameProtocol
                     case GamePckNames.HandShake:
                         HandShakePck handShakePck = JsonSerializer.Deserialize<HandShakePck>(payload);
                         GetHandShakePckEvent?.Invoke(handShakePck);
+                        break;
+                    case GamePckNames.PlaceStone:
+                        PlaceStonePck placeStonePck = JsonSerializer.Deserialize<PlaceStonePck>(payload);
+                        GetPlaceStonePckEvent?.Invoke(placeStonePck);
                         break;
                 }
             }
