@@ -9,8 +9,7 @@ public class GameManager : MonoBehaviour
     private IUIManager _uiManager;
     private IPlayer _localPlayer;
     private IMatchMaker _matchMaker;
-    private IRelayer _relayer;
-    private PreGoGameNetworkCommunication _preGoGameNetworkCommunication;
+    private HandlePreGoGame _handleHandlePreGoGame;
 
     private void Awake()
     {
@@ -18,8 +17,7 @@ public class GameManager : MonoBehaviour
         _uiManager = GetComponent<IUIManager>();
         _localPlayer = GetComponent<IPlayer>();
         _matchMaker = GetComponent<IMatchMaker>();
-        _relayer = GetComponent<IRelayer>();
-        _preGoGameNetworkCommunication = GetComponent<PreGoGameNetworkCommunication>();
+        _handleHandlePreGoGame = GetComponent<HandlePreGoGame>();
         _goManager.GoGameEndEvent += OnGoGameEnd;
     }
 
@@ -41,7 +39,7 @@ public class GameManager : MonoBehaviour
 
         IEnumerator DoCoroutine()
         {
-            yield return _preGoGameNetworkCommunication.DoCoroutine();
+            yield return _handleHandlePreGoGame.DoCoroutine();
         }
     }
 

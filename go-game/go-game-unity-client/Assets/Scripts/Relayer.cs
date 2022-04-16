@@ -1,19 +1,19 @@
 using System;
 using UnityEngine;
 
-public interface IRelayer
+public interface IP2PSocket
 {
-    event Action<Byte[]> RecvEvent;
-    void Send(Byte[] payLoad);
+    event Action<string> RecvEvent;
+    void Send(string payLoad);
 }
 
 [RequireComponent(typeof(IMatchNRelayClient))]
-public class Relayer : MonoBehaviour, IRelayer
+public class Relayer : MonoBehaviour, IP2PSocket
 {
-    public event Action<Byte[]> RecvEvent;
+    public event Action<string> RecvEvent;
     private IMatchNRelayClient _matchNRelayClient;
 
-    public void Send(Byte[] payload)
+    public void Send(string payload)
     {
         _matchNRelayClient.RelaySend(payload);
     }
@@ -24,7 +24,7 @@ public class Relayer : MonoBehaviour, IRelayer
         _matchNRelayClient.RelayRecvEvent += OnRelayRecv;
     }
 
-    private void OnRelayRecv(byte[] payload)
+    private void OnRelayRecv(string payload)
     {
         RecvEvent?.Invoke(payload);
     }

@@ -10,11 +10,11 @@ public interface IMatchNRelayClient
 {
     event Action ConnectedEvent;
     event Action<TicketPck> GetTicketPckEvent;
-    event Action<Byte[]> RelayRecvEvent;
+    event Action<string> RelayRecvEvent;
     bool IsConnected { get; }
     void SendPlayerData(PlayerData playerData);
     void RequestMatch();
-    void RelaySend(Byte[] payLoad);
+    void RelaySend(string payLoad);
 }
 
 /// <summary>
@@ -25,13 +25,12 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
 {
     public event Action ConnectedEvent; // emit when socket is readied
     public event Action<TicketPck> GetTicketPckEvent;
-    public event Action<Byte[]> RelayRecvEvent;
+    public event Action<string> RelayRecvEvent;
     public bool IsConnected => _socket.Connected;
-    public static MatchNRelayClient Singleton { get; private set; }
 
     private SocketIO _socket;
     private TicketPck _ticketPck = null;
-    private Byte[] _relayPayLoad = null;
+    private string _relayPayLoad = null;
 
     public void SendPlayerData(PlayerData playerData)
     {
@@ -46,15 +45,13 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         Task.Run(() => _socket.EmitAsync(SocketIOEventNames.RequestMatch, new RequestMatchPck()));
     }
 
-    public void RelaySend(Byte[] payLoad)
+    public void RelaySend(string payLoad)
     {
         Task.Run(() => _socket.EmitAsync(SocketIOEventNames.RelayData, payLoad));
     }
 
     private void Awake()
     {
-        // singleton
-        if (Singleton == null) Singleton = this;
         // create socket
         (string host, string port) = GetHostNPort();
         _socket = new SocketIO($"http://{host}:{port}");
@@ -84,7 +81,7 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         });
         _socket.On(SocketIOEventNames.RelayData, (res) =>
         {
-            Byte[] playLoad = res.GetValue<Byte[]>();
+            string playLoad = res.GetValue<string>();
             _relayPayLoad = playLoad;
         });
         ConnectedEvent?.Invoke();
@@ -96,9 +93,7 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         {
             yield return new WaitUntil(() => _ticketPck != null);
 
-            print("get ticket");
             //emit event
-
             GetTicketPckEvent?.Invoke(_ticketPck);
             // set null again
             _ticketPck = null;
@@ -111,7 +106,6 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         {
             yield return new WaitUntil(() => _relayPayLoad != null);
 
-            print($"get peer data");
             RelayRecvEvent?.Invoke(_relayPayLoad);
             _relayPayLoad = null;
         }
@@ -122,6 +116,7 @@ public class MatchNRelayClient : MonoBehaviour, IMatchNRelayClient
         if (_socket != null)
         {
             Task.Run(() => _socket.DisconnectAsync());
+            print("Disconnect from server");
         }
     }
 
