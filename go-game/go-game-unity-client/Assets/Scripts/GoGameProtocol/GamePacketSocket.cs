@@ -27,7 +27,6 @@ namespace GoGameProtocol
 
         private void OnP2PSocketRecv(string payload)
         {
-            print($"get peer payload: {payload}");
             try
             {
                 GamePck gamePck = JsonSerializer.Deserialize<GamePck>(payload);

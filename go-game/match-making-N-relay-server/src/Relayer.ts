@@ -47,14 +47,16 @@ export default class Relayer{
     private cleanUp(s: Socket) {
         const channelName = this.socketToChannel.get(s.id);
         if(channelName){
-            const channel = this.channels.get(channelName)!;
-            const s1 = this.socketIOServer.sockets.get(channel.s1ID);
-            const s2 = this.socketIOServer.sockets.get(channel.s1ID);
+            const channel = this.channels.get(channelName);
+            if(channel != undefined){
+                const s1 = this.socketIOServer.sockets.get(channel.s1ID);
+                const s2 = this.socketIOServer.sockets.get(channel.s1ID);
+                // clean up
+                this.channels.delete(channelName);
+                if(s1) this.socketToChannel.delete(s1.id);
+                if(s2) this.socketToChannel.delete(s2.id);
+            }
 
-            // clean up
-            this.channels.delete(channelName);
-            if(s1) this.socketToChannel.delete(s1.id);
-            if(s2) this.socketToChannel.delete(s2.id);
         }
     }
 }
