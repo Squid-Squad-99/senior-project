@@ -11,7 +11,8 @@ import PacketType, {
 if (process.env.HOST == undefined || process.env.PORT == undefined) {
   throw new Error(".env not set HOST, PORT");
 }
-const url = `http://${process.env.HOST}:${process.env.PORT}`;
+let url = `http://${process.env.HOST}:${process.env.PORT}`;
+
 const socket = io(url);
 const playerId = process.argv[process.argv.length - 1];
 test();

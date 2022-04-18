@@ -90,7 +90,7 @@ public class GoLogic : MonoBehaviour, IGoLogic
         int[,,] searchIndices = new[,,]
         {
             {{x, y + 1}, {x, y + 2}, {x, y + 3}, {x, y + 4}}, // up
-            {{x + 1, y + 1}, {x + 2, y + 2}, {x + 3, y + 3}, {x + 4, y + 3}}, // up right
+            {{x + 1, y + 1}, {x + 2, y + 2}, {x + 3, y + 3}, {x + 4, y + 4}}, // up right
             {{x + 1, y}, {x + 2, y}, {x + 3, y}, {x + 4, y}}, // right
             {{x + 1, y - 1}, {x + 2, y - 2}, {x + 3, y - 3}, {x + 4, y - 4}}, // down right
             {{x, y - 1}, {x, y - 2}, {x, y - 3}, {x, y - 4}}, // down
