@@ -50,7 +50,7 @@ describe("GoGame Unit Testing", () => {
       .withArgs(BigNumber.from("1"), p1, p2);
   });
 
-  describe("testing in game", () => {
+  describe("testing in game (single game)", () => {
     let whitePlayerContract: Contract, blackPlayerContract: Contract;
     let matchId: BigNumber;
     beforeEach(async () => {

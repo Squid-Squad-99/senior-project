@@ -168,7 +168,6 @@ contract GoGame {
       for(uint8 i = 0; i < 4; i++){
           if(cnt[i] + cnt[i+4] >= 4){
               // win
-              console.log("someone win");
               matchIdToGS[ps.matchId].isOver = true;
               emit GameOver(ps.matchId, msg.sender);
               break;
