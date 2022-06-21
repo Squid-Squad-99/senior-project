@@ -29,6 +29,7 @@ contract GoGame {
   }
 
   event FindMatch(uint256 indexed matchId, address player1, address player2);
+  event GameOver(uint256 indexed matchId, address winner);
 
   address[] matchQueue;
   mapping(uint256 => GameState) matchIdToGS; // index by match id
@@ -78,7 +79,7 @@ contract GoGame {
     if (
       (x < 0 || x >= 19) ||
       (y < 0 || y >= 19) ||
-       gs.boardState[x + y * 19] != StoneType.None
+      gs.boardState[x + y * 19] != StoneType.None
     ) {
       revert GoGame__InvalidPlacing();
     }
@@ -91,7 +92,88 @@ contract GoGame {
 
     if (checkWin) {
       // check win condition
-      console.log("Checking win condition");
+      // 1. up -> right -> down -> left
+      uint8[8] memory cnt;
+      int8[2][4][8] memory vecs = [
+        [
+          [int8(0), int8(1)],
+          [int8(0), int8(2)],
+          [int8(0), int8(3)],
+          [int8(0), int8(4)]
+        ],
+        [
+          [int8(1), int8(1)],
+          [int8(2), int8(2)],
+          [int8(3), int8(3)],
+          [int8(4), int8(4)]
+        ],
+        [
+          [int8(1), int8(0)],
+          [int8(2), int8(0)],
+          [int8(3), int8(0)],
+          [int8(4), int8(0)]
+        ],
+        [
+          [int8(1), int8(-1)],
+          [int8(2), int8(-2)],
+          [int8(3), int8(-3)],
+          [int8(4), int8(-4)]
+        ],
+        [
+          [int8(0), int8(-1)],
+          [int8(0), int8(-2)],
+          [int8(0), int8(-3)],
+          [int8(0), int8(-4)]
+        ],
+        [
+          [int8(-1), int8(-1)],
+          [int8(-2), int8(-2)],
+          [int8(-3), int8(-3)],
+          [int8(-4), int8(-4)]
+        ],
+        [
+          [int8(-1), int8(0)],
+          [int8(-2), int8(0)],
+          [int8(-3), int8(0)],
+          [int8(-4), int8(0)]
+        ],
+        [
+          [int8(-1), int8(1)],
+          [int8(-2), int8(2)],
+          [int8(-3), int8(3)],
+          [int8(-4), int8(4)]
+        ]
+      ];
+
+      for (uint8 i = 0; i < 8; i++) {
+        for (uint8 j = 0; j < 4; j++) {
+          // checking index
+          int8 nx = int8(x) + vecs[i][j][0];
+          int8 ny = int8(y) + vecs[i][j][1];
+          // check out of bound
+          if (nx < 0 || nx >= 19 || ny < 0 || ny >= 19) break;
+          // if line is continuous
+          if(gs.boardState[uint16(uint8(nx)) + 19 * uint16(uint8(ny))] == ps.stoneType){
+              // cnt add
+              cnt[i]++;
+          }
+          else{
+              // this line is done
+              break;
+          }
+        }
+      }
+
+        // check have 5 in a line
+      for(uint8 i = 0; i < 4; i++){
+          if(cnt[i] + cnt[i+4] >= 4){
+              // win
+              console.log("someone win");
+              matchIdToGS[ps.matchId].isOver = true;
+              emit GameOver(ps.matchId, msg.sender);
+              break;
+          }
+      }
     }
   }
 

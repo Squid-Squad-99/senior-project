@@ -11,7 +11,7 @@ const printBoard = (board: number[]) => {
   let s: string[] = [];
   for (let y = 0; y < 19; y++) {
     let line: string = "";
-    for(let x = 0; x < 19; x++){
+    for (let x = 0; x < 19; x++) {
       line += `${board[x + y * 19]} `;
     }
     s.push(line);
@@ -19,7 +19,7 @@ const printBoard = (board: number[]) => {
   s = s.reverse();
   console.log("board state:");
   console.log(s);
-}
+};
 
 describe("GoGame Unit Testing", () => {
   let goGame: Contract;
@@ -63,8 +63,8 @@ describe("GoGame Unit Testing", () => {
 
       // get white/black player
       const p1PS = await p1Contract.MyPlayerState();
-      whitePlayerContract = p1PS.stoneType == 2? p1Contract: p2Contract;
-      blackPlayerContract = p1PS.stoneType == 2? p2Contract: p1Contract;
+      whitePlayerContract = p1PS.stoneType == 2 ? p1Contract : p2Contract;
+      blackPlayerContract = p1PS.stoneType == 2 ? p2Contract : p1Contract;
       // match id
       matchId = p1PS.matchId;
     });
@@ -73,28 +73,62 @@ describe("GoGame Unit Testing", () => {
       const p1PS = await p1Contract.MyPlayerState();
       const p2PS = await p2Contract.MyPlayerState();
       assert(p1PS.stoneType != p2PS.stoneType);
-    })
+    });
 
     it("turn should change after placing", async () => {
       await whitePlayerContract.PlaceStone(1, 1, false);
       expect(await goGame.WhosTurn(matchId)).to.equal(1);
     });
 
-    it("place invalid index should revert",async () => {
+    it("place invalid index should revert", async () => {
       await whitePlayerContract.PlaceStone(1, 1, false);
-      await expect(blackPlayerContract.PlaceStone(1, 1, false)).to.be.revertedWith("GoGame__InvalidPlacing");
-      await expect(blackPlayerContract.PlaceStone(20, 1, false)).to.be.revertedWith("GoGame__InvalidPlacing");
-      await expect(blackPlayerContract.PlaceStone(1, 20, false)).to.be.revertedWith("GoGame__InvalidPlacing");
+      await expect(
+        blackPlayerContract.PlaceStone(1, 1, false)
+      ).to.be.revertedWith("GoGame__InvalidPlacing");
+      await expect(
+        blackPlayerContract.PlaceStone(20, 1, false)
+      ).to.be.revertedWith("GoGame__InvalidPlacing");
+      await expect(
+        blackPlayerContract.PlaceStone(1, 20, false)
+      ).to.be.revertedWith("GoGame__InvalidPlacing");
     });
 
-    it("place stone",async () => {
-      await whitePlayerContract.PlaceStone(1, 1, false);
-      await blackPlayerContract.PlaceStone(2, 2, false);
-      await whitePlayerContract.PlaceStone(3, 3, false);
-      await blackPlayerContract.PlaceStone(4, 4, false);
-      const board: number[] = await goGame.BoardState(matchId);
-      printBoard(board);
+    describe("test all kind of win way", () => {
+      it("line / white win", async () => {
+        await whitePlayerContract.PlaceStone(1, 1, false);
+        await blackPlayerContract.PlaceStone(10, 10, false);
+        await whitePlayerContract.PlaceStone(2, 2, false);
+        await blackPlayerContract.PlaceStone(11, 10, false);
+        await whitePlayerContract.PlaceStone(3, 3, false);
+        await blackPlayerContract.PlaceStone(13, 10, false);
+        await whitePlayerContract.PlaceStone(5, 5, false);
+        await blackPlayerContract.PlaceStone(12, 10, false);
+        const tx = await whitePlayerContract.PlaceStone(4, 4, true);
+        await expect(tx)
+          .to.emit(goGame, "GameOver")
+          .withArgs(matchId, await whitePlayerContract.signer.getAddress());
+        const board: number[] = await goGame.BoardState(matchId);
+        // printBoard(board);
+      });
+
+      it("line \\ black win", async () => {
+        await whitePlayerContract.PlaceStone(5, 5, false);
+        await blackPlayerContract.PlaceStone(10, 10, false);
+        await whitePlayerContract.PlaceStone(4, 6, false);
+        await blackPlayerContract.PlaceStone(12, 10, false);
+        await whitePlayerContract.PlaceStone(6, 4, false);
+        await blackPlayerContract.PlaceStone(13, 10, false);
+        await whitePlayerContract.PlaceStone(7, 3, false);
+        await blackPlayerContract.PlaceStone(11, 10, false);
+        const tx = await whitePlayerContract.PlaceStone(3, 7, true);
+        await expect(tx)
+          .to.emit(goGame, "GameOver")
+          .withArgs(matchId, await whitePlayerContract.signer.getAddress());
+        const board: number[] = await goGame.BoardState(matchId);
+        // printBoard(board);
+      });
+
     })
+
   });
 });
-
