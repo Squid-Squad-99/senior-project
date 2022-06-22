@@ -83,6 +83,12 @@ describe("GoGame Unit Testing", () => {
       expect(await goGame.WhosTurn(matchId)).to.equal(1);
     });
 
+    it("should emit game state change event", async () => {
+      await expect(whitePlayerContract.PlaceStone(1, 1, false))
+        .to.emit(goGame, "GameStateChange")
+        .withArgs(matchId);
+    });
+
     it("place invalid index should revert", async () => {
       await whitePlayerContract.PlaceStone(1, 1, false);
       await expect(
