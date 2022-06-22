@@ -27,13 +27,21 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    rinkeby: {
+      url: process.env.RINKEBY_URL || "",
+      accounts: [
+        process.env.PRIVATE_KEY_1 !== undefined ? process.env.PRIVATE_KEY_1: "",
+        process.env.PRIVATE_KEY_2 !== undefined ? process.env.PRIVATE_KEY_2: "",
+        process.env.PRIVATE_KEY_3 !== undefined ? process.env.PRIVATE_KEY_3: "",
+      ],
+      chainId: 4,
+      gas: 30000000,
+      gasMultiplier: 10.0,
     },
     localhost: {
-      url: "",
+      url: "http://127.0.0.1:8545/",
+      chainId: 31337,
+      gas: 30000000,
     },
   },
   namedAccounts: {

@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "./Convert.sol";
 
 error GoGame__PlayerDontHaveMatch();
@@ -39,21 +38,21 @@ contract GoGame {
   /* public & external function  */
 
   function requestMatch() public {
-    // add to match queue
-    matchQueue.push(msg.sender);
-
-    // check for match
-    if (matchQueue.length == 2) {
-      // get player
-      address p1 = matchQueue[0];
-      address p2 = matchQueue[1];
+    address[] memory mq = matchQueue;
+    if(mq.length == 0){
+      matchQueue.push(msg.sender);
+    }
+    else if(mq.length == 1){
+      // check is in queue already
+      if(mq[0] == msg.sender) return;
+      // match
       // create new game
-      uint256 matchId = createNewGame(p1, p2);
-      // emit event
-      emit FindMatch(matchId, p1, p2);
+      uint256 matchId = createNewGame(mq[0], msg.sender);
+       // emit event
+      emit FindMatch(matchId, mq[0], msg.sender);
       // clear match queue
       delete matchQueue;
-    }
+    } 
   }
 
   // player place stone

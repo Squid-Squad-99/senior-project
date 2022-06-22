@@ -5,7 +5,7 @@ import {
 } from "@ethersproject/contracts";
 import { assert, expect } from "chai";
 import { BigNumber } from "ethers";
-import { ethers, deployments, getNamedAccounts } from "hardhat";
+import { ethers, deployments, getNamedAccounts, network } from "hardhat";
 
 const printBoard = (board: number[]) => {
   let s: string[] = [];
@@ -26,12 +26,14 @@ describe("GoGame Unit Testing", () => {
   let p1: string, p2: string;
   let p1Contract: Contract, p2Contract: Contract;
   beforeEach(async () => {
-    // deploy contract
-    await deployments.fixture(["GoGame"]);
+    // deploy contract if in local otherwise we need to deploy manaully before running test
+    if (network.name == "localhost" || network.name == "hardhat") {
+      await deployments.fixture(["GoGame"]);
+    }
 
     // set up varaible
-    goGame = await ethers.getContract("GoGame");
     const namedAccounts = await getNamedAccounts();
+    goGame = await ethers.getContract("GoGame", namedAccounts.deployer);
     p1 = namedAccounts.player1;
     p2 = namedAccounts.player2;
     p1Contract = await ethers.getContract("GoGame", p1);
@@ -41,13 +43,13 @@ describe("GoGame Unit Testing", () => {
   it("should match player", async () => {
     // player1 request match
     const tx1: ContractTransaction = await p1Contract.requestMatch();
-    await tx1.wait();
     // player2 request match
     const tx2: ContractTransaction = await p2Contract.requestMatch();
+    await tx1.wait();
     await tx2.wait();
     await expect(tx2)
       .to.emit(goGame, "FindMatch")
-      .withArgs(BigNumber.from("1"), p1, p2);
+      .withArgs((await p1Contract.MyPlayerState()).matchId, p1, p2);
   });
 
   describe("testing in game (single game)", () => {
@@ -63,6 +65,7 @@ describe("GoGame Unit Testing", () => {
 
       // get white/black player
       const p1PS = await p1Contract.MyPlayerState();
+      console.log(`Testing game with match id: ${p1PS.matchId}`);
       whitePlayerContract = p1PS.stoneType == 2 ? p1Contract : p2Contract;
       blackPlayerContract = p1PS.stoneType == 2 ? p2Contract : p1Contract;
       // match id
@@ -111,7 +114,7 @@ describe("GoGame Unit Testing", () => {
         // printBoard(board);
       });
 
-      it("line \\ black win", async () => {
+      it("line \\ white win", async () => {
         await whitePlayerContract.PlaceStone(5, 5, false);
         await blackPlayerContract.PlaceStone(10, 10, false);
         await whitePlayerContract.PlaceStone(4, 6, false);
@@ -127,8 +130,6 @@ describe("GoGame Unit Testing", () => {
         const board: number[] = await goGame.BoardState(matchId);
         // printBoard(board);
       });
-
-    })
-
+    });
   });
 });
