@@ -58,9 +58,9 @@ describe("GoGame Unit Testing", () => {
     beforeEach(async () => {
       // player1 request match
       const tx1: ContractTransaction = await p1Contract.requestMatch();
-      await tx1.wait();
       // player2 request match
       const tx2: ContractTransaction = await p2Contract.requestMatch();
+      await tx1.wait();
       await tx2.wait();
 
       // get white/black player
@@ -79,7 +79,8 @@ describe("GoGame Unit Testing", () => {
     });
 
     it("turn should change after placing", async () => {
-      await whitePlayerContract.PlaceStone(1, 1, false);
+      const tx: ContractTransaction = await whitePlayerContract.PlaceStone(1, 1, false);
+      await tx.wait();
       expect(await goGame.WhosTurn(matchId)).to.equal(1);
     });
 
@@ -90,7 +91,7 @@ describe("GoGame Unit Testing", () => {
     });
 
     it("place invalid index should revert", async () => {
-      await whitePlayerContract.PlaceStone(1, 1, false);
+      (await whitePlayerContract.PlaceStone(1, 1, false)).wait();
       await expect(
         blackPlayerContract.PlaceStone(1, 1, false)
       ).to.be.revertedWith("GoGame__InvalidPlacing");
@@ -104,14 +105,14 @@ describe("GoGame Unit Testing", () => {
 
     describe("test all kind of win way", () => {
       it("line / white win", async () => {
-        await whitePlayerContract.PlaceStone(1, 1, false);
-        await blackPlayerContract.PlaceStone(10, 10, false);
-        await whitePlayerContract.PlaceStone(2, 2, false);
-        await blackPlayerContract.PlaceStone(11, 10, false);
-        await whitePlayerContract.PlaceStone(3, 3, false);
-        await blackPlayerContract.PlaceStone(13, 10, false);
-        await whitePlayerContract.PlaceStone(5, 5, false);
-        await blackPlayerContract.PlaceStone(12, 10, false);
+        (await whitePlayerContract.PlaceStone(1, 1, false)).wait();
+        (await blackPlayerContract.PlaceStone(10, 10, false)).wait();
+        (await whitePlayerContract.PlaceStone(2, 2, false)).wait();
+        (await blackPlayerContract.PlaceStone(11, 10, false)).wait();
+        (await whitePlayerContract.PlaceStone(3, 3, false)).wait();
+        (await blackPlayerContract.PlaceStone(13, 10, false)).wait();
+        (await whitePlayerContract.PlaceStone(5, 5, false)).wait();
+        (await blackPlayerContract.PlaceStone(12, 10, false)).wait();
         const tx = await whitePlayerContract.PlaceStone(4, 4, true);
         await expect(tx)
           .to.emit(goGame, "GameOver")
@@ -121,14 +122,14 @@ describe("GoGame Unit Testing", () => {
       });
 
       it("line \\ white win", async () => {
-        await whitePlayerContract.PlaceStone(5, 5, false);
-        await blackPlayerContract.PlaceStone(10, 10, false);
-        await whitePlayerContract.PlaceStone(4, 6, false);
-        await blackPlayerContract.PlaceStone(12, 10, false);
-        await whitePlayerContract.PlaceStone(6, 4, false);
-        await blackPlayerContract.PlaceStone(13, 10, false);
-        await whitePlayerContract.PlaceStone(7, 3, false);
-        await blackPlayerContract.PlaceStone(11, 10, false);
+        (await whitePlayerContract.PlaceStone(5, 5, false)).wait();
+        (await blackPlayerContract.PlaceStone(10, 10, false)).wait();
+        (await whitePlayerContract.PlaceStone(4, 6, false)).wait();
+        (await blackPlayerContract.PlaceStone(12, 10, false)).wait();
+        (await whitePlayerContract.PlaceStone(6, 4, false)).wait();
+        (await blackPlayerContract.PlaceStone(13, 10, false)).wait();
+        (await whitePlayerContract.PlaceStone(7, 3, false)).wait();
+        (await blackPlayerContract.PlaceStone(11, 10, false)).wait();
         const tx = await whitePlayerContract.PlaceStone(3, 7, true);
         await expect(tx)
           .to.emit(goGame, "GameOver")
