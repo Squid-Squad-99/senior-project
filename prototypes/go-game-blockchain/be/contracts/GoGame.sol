@@ -10,9 +10,9 @@ error GoGame__InvalidPlacing();
 
 contract GoGame {
     enum StoneType {
-        None,
-        Black,
-        White
+        None, // 0
+        Black, // 1
+        White // 2
     }
 
     struct GameState {

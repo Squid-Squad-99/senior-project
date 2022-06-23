@@ -4,8 +4,9 @@ import { ConnectButton } from "web3uikit"
 
 import './App.css';
 import Square from './components/Square'
+import RequestMatchButton from "components/RequestMatchButton";
+import Info from "./components/Info";
 // import ConnectButton from "components/ConnectButton"; 
-
 
 function App() {
   const [board, setBoard] = useState(Array(19).fill(Array(19).fill(null)));
@@ -64,6 +65,8 @@ useEffect(() => {
 
   return (
     <div className="App">
+      <Info></Info>
+      <RequestMatchButton text="request match"/>
       <ConnectButton moralisAuth={false}/>
       {/* <ConnectButton text="Connect" /> */}
       {/* Wrapper */}
