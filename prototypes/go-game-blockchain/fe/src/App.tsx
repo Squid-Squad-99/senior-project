@@ -1,11 +1,15 @@
 import { useRef, useState, useEffect } from "react";
+import { useMoralis } from "react-moralis"
+import { ConnectButton } from "web3uikit"
+
 import './App.css';
 import Square from './components/Square'
-import { useMoralis } from "react-moralis"
+// import ConnectButton from "components/ConnectButton"; 
+
 
 function App() {
   const [board, setBoard] = useState(Array(19).fill(Array(19).fill(null)));
-  const { enableWeb3, isWeb3Enabled, isWeb3EnableLoading, account, Moralis, deactivateWeb3 } = useMoralis()
+  const { enableWeb3, isWeb3Enabled, Moralis, deactivateWeb3 } = useMoralis()
   useEffect(() => {
     if (isWeb3Enabled) return
     if (typeof window !== "undefined") {
@@ -60,23 +64,10 @@ useEffect(() => {
 
   return (
     <div className="App">
+      <ConnectButton moralisAuth={false}/>
+      {/* <ConnectButton text="Connect" /> */}
       {/* Wrapper */}
       <div className="flex text-center my-[100px] mx-auto"> 
-      <button
-            onClick={async () => {
-                // await walletModal.connect()
-                await enableWeb3()
-                // depends on what button they picked
-                if (typeof window !== "undefined") {
-                    window.localStorage.setItem("connected", "injected")
-                    // window.localStorage.setItem("connected", "walletconnect")
-                }
-            }}
-            disabled={isWeb3EnableLoading}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-        >
-            Connect
-        </button>
         {/* Board */}
         <div className="my-0 mx-auto">
           {board.map((row: Array<string>, rowIndex: number) => {
