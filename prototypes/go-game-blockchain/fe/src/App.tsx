@@ -4,7 +4,7 @@ import { ConnectButton } from "web3uikit"
 
 import './App.css';
 import Square from './components/Square'
-import RequestMatchButton from "components/RequestMatchButton";
+import RequestMatchButton from "./components/RequestMatchButton";
 import Info from "./components/Info";
 // import ConnectButton from "components/ConnectButton"; 
 

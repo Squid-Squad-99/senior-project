@@ -5,20 +5,23 @@ import { useMoralis } from "react-moralis"
 import { useEffect, useState } from "react"
 import { useNotification } from "web3uikit"
 import { ethers } from "ethers"
+import { assert } from "console"
 
 type Props = {
     text?: string;
 }
 
-type addressData = {
-    [key: number]: string[]
+interface ContractAddressObj {
+  chainId: number
+  address: string
 }
   
 const RequestMatchButton = ({text}: Props) => {
   const { chainId: chainIdHex, isWeb3EnableLoading } = useMoralis(); // FIXME: need automated enableweb3 || authentication
-  const chainId = 4; // parseInt(chainIdHex!); // FIXME: typescript number to index
-
+  const chainId = 4 // chainIdHex ? parseInt(chainIdHex) : null;
   // const raffleAddress = chainId in contractAddresses ? contractAddresses[chainId] : null;
+  // let myAddress:  { string: ContractAddressObj[] } = JSON.parse(contractAddresses.toString());
+  // console.log(myAddress);
   const goGameAddress = contractAddresses[chainId][0];
 
   const {runContractFunction: requestMatch} = useWeb3Contract({
@@ -42,9 +45,9 @@ const RequestMatchButton = ({text}: Props) => {
     <button 
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
       onClick={handleOnClick}
-      disabled={isWeb3EnableLoading}
+      disabled={isWeb3EnableLoading || !chainId}
     >
-      {text}
+      {chainId ? `${text}` : "invalid chain!"}
     </button>
   );
 };

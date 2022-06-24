@@ -1,0 +1,12 @@
+{
+  "networks": [
+    {
+      "chainId": 4,
+      "address": ["0xC31360bf7d1b78F79B39996801BaE0C2CeC81FBB"]
+    },
+    {
+      "chainId": 31337,
+      "address": ["0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"]
+    }
+  ]
+}
