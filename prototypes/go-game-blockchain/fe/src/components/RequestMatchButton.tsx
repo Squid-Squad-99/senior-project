@@ -24,7 +24,7 @@ const RequestMatchButton = ({text}: Props) => {
   // console.log(myAddress);
   const goGameAddress = contractAddresses[chainId][0];
 
-  const dispatch = useNotification()
+  const dispatch = useNotification();
 
 
   const {
@@ -49,7 +49,6 @@ const RequestMatchButton = ({text}: Props) => {
       })
   }
 
-  // Probably could add some error handling
   const handleSuccess = async (tx: any) => {
       await tx.wait(1)
       console.log(`transaction: ${tx}`)

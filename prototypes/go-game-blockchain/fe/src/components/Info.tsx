@@ -19,12 +19,14 @@ interface PlayerState {
 const Info = (props: Props) => {
     // State hooks
     // https://stackoverflow.com/questions/58252454/react-hooks-using-usestate-vs-just-variables
-    const [boardState, setBoardState] = useState("0")
+    const [boardState, setBoardState] = useState("")
     const [whosTurn, setWhosTurn] = useState("0")
     const [myPlayerState, setMyPlayerState] = useState("0")
     const [myMatchId, setMyMatchId] = useState(0)
 
     const { chainId: chainIdHex, isWeb3EnableLoading, isWeb3Enabled } = useMoralis();
+    const dispatch = useNotification();
+
     const chainId = 4; // parseInt(chainIdHex!); // FIXME: typescript number to index
     // const goGameAddresss = chainId in contractAddresses ? contractAddresses[chainId] : null;
     const goGameAddress = contractAddresses[chainId][0];
@@ -77,8 +79,6 @@ const Info = (props: Props) => {
         setBoardState(boardStateFromCall)
         setWhosTurn(whosTurnFromCall)
         setMyPlayerState(myPlayerStateFromCall)
-
-
     }
 
     useEffect(() => {
@@ -87,10 +87,27 @@ const Info = (props: Props) => {
         }
     }, [isWeb3Enabled])
 
+    const handleNewNotification = () => {
+        dispatch({
+            type: "info",
+            message: "Transaction Complete!",
+            title: "Transaction Notification",
+            position: "topR",
+            icon: "bell",
+        })
+    }
+
+    // Probably could add some error handling
+    const handleSuccess = async (tx: any) => {
+        await tx.wait(1)
+        handleNewNotification()
+        updateUIValues()
+    }
+
     return (
         // Cell
         <div className={ 'w-[300px] h-[30px] relative '}>
-        <div>Board State: {boardState}</div>
+        {/* <div>Board State: {boardState}</div> */}
         <div>Who's Turn: {whosTurn}</div>
         <div>Player State: {myPlayerState}</div>
         </div>
