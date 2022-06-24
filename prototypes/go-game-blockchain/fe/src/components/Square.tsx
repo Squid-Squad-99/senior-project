@@ -33,7 +33,7 @@ const Square = (props: Props) => {
     params: {
       x: props.col,
       y: props.row,
-      checkWin: false
+      checkWin: true
     }
   };
   const {data, error, runContractFunction: placeStone, isFetching, isLoading} = useWeb3Contract(options);
@@ -51,6 +51,7 @@ const Square = (props: Props) => {
 
   const handleSuccess = async (tx: any) => {
     await tx.wait(1)
+    console.log(`place stone tx: ${tx.address}`) // TODO: get tx address
     handleNewNotification()
     console.log("stone placed!")
     console.log(props.row, props.col, props.val)
@@ -59,7 +60,10 @@ const Square = (props: Props) => {
     props.onClick(props.row, props.col, props.val)
     await placeStone({
       onSuccess: handleSuccess,
-      onError: (error) => console.log(`errorrr: ${error.message}`),
+      onError: (error) => {
+        alert("It's not your turn!")
+        console.log(`errorrr: ${error.message}`);
+      },
     });
   }
   return (

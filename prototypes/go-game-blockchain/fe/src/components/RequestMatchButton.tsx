@@ -4,8 +4,6 @@ import { contractAddresses, abi } from "../constants"
 import { useMoralis } from "react-moralis"
 import { useEffect, useState } from "react"
 import { useNotification } from "web3uikit"
-import { ethers } from "ethers"
-import { assert } from "console"
 
 type Props = {
     text?: string;
@@ -39,14 +37,14 @@ const RequestMatchButton = ({text}: Props) => {
     params: {},
   });
 
-    const handleNewNotification = () => {
-      dispatch({
-          type: "info",
-          message: "Transaction Complete!",
-          title: "Transaction Notification",
-          position: "topL",
-          icon: "bell",
-      })
+  const handleNewNotification = () => {
+    dispatch({
+      type: "info",
+      message: "Transaction Complete!",
+      title: "Transaction Notification",
+      position: "topR",
+      icon: "bell",
+    })
   }
 
   const handleSuccess = async (tx: any) => {

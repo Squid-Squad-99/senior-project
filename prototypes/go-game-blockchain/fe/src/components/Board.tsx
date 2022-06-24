@@ -1,11 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useMoralis, useWeb3Contract } from "react-moralis"
 import { useNotification } from "web3uikit"
 
 import '../App.css';
 import Square from './Square'
 import { contractAddresses, abi } from "../constants"
-import { info } from "console";
 
 interface PlayerState {
     stoneType: number;
@@ -22,12 +21,14 @@ const Board = () => {
   const [myMatchId, setMyMatchId] = useState(0)
   const isBlackNext = useRef(true); //black first
 
-
   // const lastRow = useRef(0);
   // const lastCol = useRef(0);
 
-  const { chainId: chainIdHex, isWeb3EnableLoading, isWeb3Enabled } = useMoralis();
+//   const { chainId: chainIdHex, isWeb3EnableLoading, isWeb3Enabled, enableWeb3 } = useMoralis();
   const dispatch = useNotification();
+
+
+  const { chainId: chainIdHex, enableWeb3, isWeb3Enabled, Moralis, deactivateWeb3 } = useMoralis();
 
   /* View Functions */
 
@@ -47,6 +48,23 @@ const Board = () => {
     params: {},
   })
 
+  useEffect(() => {
+    const renderBoard = async () => {
+        if (isWeb3Enabled) {
+            const myPlayerStateRaw: unknown = await getMyPlayerState()
+            const myPlayerStateObject: PlayerState = myPlayerStateRaw as PlayerState
+            const matchId = myPlayerStateObject.matchId
+            console.log(`MatchId: ${matchId}`)
+            if(matchId) {
+                setMyMatchId(matchId)
+                fetchBoard()
+            }
+        }
+    renderBoard();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const updateBoard = (y: number, x: number, newValue: string) => {
     //copy a new board and assign the new value
     setBoard((board: Array<Array<string>>) => 
@@ -60,6 +78,30 @@ const Board = () => {
     );
   };
 
+  const fetchBoard = async () => {
+    const boardStateRaw: unknown = await getBoardState({
+        onError: (err) => {console.log(err)}
+    });
+    const boardStateObject: string[] = boardStateRaw as string[]
+
+    console.log(`FetchedBoardState1: ${boardStateObject}`);
+    console.log(`CurrentBoardState: ${board}`);
+
+    setBoard((board: Array<Array<string>>) => 
+        board.map((row, currentY) => {
+            // console.log(`row: ${row}, currentY: ${currentY}`);
+            return row.map((col, currentX) => {
+                const curIndex = 19 * currentY + currentX;
+                if(parseInt(boardStateObject[curIndex]) === 0) return '';
+                else if(parseInt(boardStateObject[curIndex]) === 1) return 'black';
+                else return 'white';
+            });
+        })
+    );
+  };
+
+
+
   const handlePieceClick = async (row: number, col: number, val: string) => {
     if (val) return; //return if val not null (piece already set)
 
@@ -71,29 +113,10 @@ const Board = () => {
 
     // lastRow.current = row;
     // lastCol.current = col;
-
-    // updateBoard(row, col, isBlackNext.current ? 'black' : 'white')
-    const boardStateRaw: unknown = await getBoardState({
-        onError: (err) => {console.log(err)}
-    });
-    const boardStateObject: string[] = boardStateRaw as string[]
-
-    console.log(`FetchedBoardState1: ${boardStateObject}`);
-    console.log(`CurrentBoardState: ${board}`);
-
-    setBoard((board: Array<Array<string>>) => 
-        board.map((row, currentY) => {
-            console.log(`row: ${row}, currentY: ${currentY}`);
-            return row.map((col, currentX) => {
-                const curIndex = 19 * currentY + currentX;
-                if(parseInt(boardStateObject[curIndex]) === 0) return '';
-                else if(parseInt(boardStateObject[curIndex]) === 1) return 'black';
-                else return 'white';
-            });
-        })
-    );
     updateBoard(row, col, myPlayerStateObject.stoneType === 1 ? 'black' : 'white')
-    // TODO: not your turn alert
+
+    await fetchBoard();
+
 
     console.log(`CurrentBoardState2: ${board}`);
 

@@ -5,13 +5,12 @@ import { useMoralis } from "react-moralis"
 import { useEffect, useState } from "react"
 import { useNotification } from "web3uikit"
 import { ethers } from "ethers"
-import { EnumType } from "typescript"
 
 type Props = {
 }
 
 interface PlayerState {
-    stoneType: EnumType;
+    stoneType: number;
     matchId: number;
     inGame: boolean;
 };
@@ -20,7 +19,7 @@ const Info = (props: Props) => {
     // State hooks
     // https://stackoverflow.com/questions/58252454/react-hooks-using-usestate-vs-just-variables
     const [boardState, setBoardState] = useState("")
-    const [whosTurn, setWhosTurn] = useState("0")
+    const [whosTurn, setWhosTurn] = useState("7")
     const [myPlayerState, setMyPlayerState] = useState("0")
     const [myMatchId, setMyMatchId] = useState(0)
 
