@@ -72,7 +72,7 @@ useEffect(() => {
       {/* <ConnectButton text="Connect" /> */}
       {/* Wrapper */}
       <div className="flex text-center my-[100px] mx-auto"> 
-        {/* <Info></Info> */}
+        <Info></Info>
         {/* Board */}
         <div className="my-0 mx-auto">
           {board.map((row: Array<string>, rowIndex: number) => {

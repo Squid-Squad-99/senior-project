@@ -31,7 +31,7 @@ const Info = (props: Props) => {
 
     /* View Functions */
 
-    const { data: boardStateData, runContractFunction: getBoardState } = useWeb3Contract({
+    const { runContractFunction: getBoardState } = useWeb3Contract({
         abi: abi,
         contractAddress: goGameAddress, // specify the networkId
         functionName: "BoardState",
@@ -40,7 +40,7 @@ const Info = (props: Props) => {
         },
     })
 
-    const { data: whosTurnData, runContractFunction: getWhosTurn } = useWeb3Contract({
+    const { runContractFunction: getWhosTurn } = useWeb3Contract({
         abi: abi,
         contractAddress: goGameAddress,
         functionName: "WhosTurn",
@@ -49,7 +49,7 @@ const Info = (props: Props) => {
         },
     })
 
-    const { data: myPlayerStateData, runContractFunction: getMyPlayerState } = useWeb3Contract({
+    const { runContractFunction: getMyPlayerState } = useWeb3Contract({
         abi: abi,
         contractAddress: goGameAddress,
         functionName: "MyPlayerState",
@@ -61,6 +61,7 @@ const Info = (props: Props) => {
         const myPlayerStateObject: PlayerState = myPlayerStateRaw as PlayerState
         const matchId = myPlayerStateObject.matchId
         console.log(`MatchId: ${matchId}`)
+        setMyMatchId(matchId)
         
         //await getWhosTurn()
         // console.log(`WhosTurnData: ${whosTurnData}`)
@@ -68,14 +69,16 @@ const Info = (props: Props) => {
         const myPlayerStateFromCall = JSON.stringify(myPlayerStateObject)
         const boardStateFromCall = JSON.stringify(await getBoardState())
         const whosTurnFromCall = JSON.stringify(await getWhosTurn())
+
+        console.log(boardStateFromCall)
+        console.log(whosTurnFromCall)
+        console.log(myPlayerStateFromCall)
+
         setBoardState(boardStateFromCall)
         setWhosTurn(whosTurnFromCall)
         setMyPlayerState(myPlayerStateFromCall)
-        setMyMatchId(myPlayerStateObject.matchId)
 
-        console.log(boardState)
-        console.log(whosTurn)
-        console.log(myPlayerState)
+
     }
 
     useEffect(() => {
