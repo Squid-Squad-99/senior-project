@@ -1,34 +1,33 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useMoralis, useWeb3Contract } from "react-moralis"
 import { useNotification } from "web3uikit"
-import { EnumType } from "typescript"
 
 import '../App.css';
 import Square from './Square'
 import { contractAddresses, abi } from "../constants"
+import { info } from "console";
 
 interface PlayerState {
-    stoneType: EnumType;
+    stoneType: number;
     matchId: number;
     inGame: boolean;
 };
 
 const Board = () => {
+  const chainId = 4; // parseInt(chainIdHex!); // FIXME: typescript number to index
+  // const goGameAddresss = chainId in contractAddresses ? contractAddresses[chainId] : null;
+  const goGameAddress = contractAddresses[chainId][0];
+
   const [board, setBoard] = useState(Array(19).fill(Array(19).fill(null)));
   const [myMatchId, setMyMatchId] = useState(0)
-
-
   const isBlackNext = useRef(true); //black first
+
 
   // const lastRow = useRef(0);
   // const lastCol = useRef(0);
 
   const { chainId: chainIdHex, isWeb3EnableLoading, isWeb3Enabled } = useMoralis();
   const dispatch = useNotification();
-
-  const chainId = 4; // parseInt(chainIdHex!); // FIXME: typescript number to index
-  // const goGameAddresss = chainId in contractAddresses ? contractAddresses[chainId] : null;
-  const goGameAddress = contractAddresses[chainId][0];
 
   /* View Functions */
 
@@ -47,7 +46,6 @@ const Board = () => {
     functionName: "MyPlayerState",
     params: {},
   })
-
 
   const updateBoard = (y: number, x: number, newValue: string) => {
     //copy a new board and assign the new value
@@ -74,11 +72,31 @@ const Board = () => {
     // lastRow.current = row;
     // lastCol.current = col;
 
-    updateBoard(row, col, isBlackNext.current ? 'black' : 'white')
-    const boardState = JSON.stringify(await getBoardState({
+    // updateBoard(row, col, isBlackNext.current ? 'black' : 'white')
+    const boardStateRaw: unknown = await getBoardState({
         onError: (err) => {console.log(err)}
-    })); // TODO: map contract's board state to fe
-    console.log(`BoardState: ${boardState}`);
+    });
+    const boardStateObject: string[] = boardStateRaw as string[]
+
+    console.log(`FetchedBoardState1: ${boardStateObject}`);
+    console.log(`CurrentBoardState: ${board}`);
+
+    setBoard((board: Array<Array<string>>) => 
+        board.map((row, currentY) => {
+            console.log(`row: ${row}, currentY: ${currentY}`);
+            return row.map((col, currentX) => {
+                const curIndex = 19 * currentY + currentX;
+                if(parseInt(boardStateObject[curIndex]) === 0) return '';
+                else if(parseInt(boardStateObject[curIndex]) === 1) return 'black';
+                else return 'white';
+            });
+        })
+    );
+    updateBoard(row, col, myPlayerStateObject.stoneType === 1 ? 'black' : 'white')
+    // TODO: not your turn alert
+
+    console.log(`CurrentBoardState2: ${board}`);
+
 
     isBlackNext.current = !isBlackNext.current; //switch turns
   }
