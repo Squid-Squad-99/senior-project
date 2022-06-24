@@ -70,7 +70,7 @@ const Info = (props: Props) => {
         const boardStateFromCall = JSON.stringify(await getBoardState())
         const whosTurnFromCall = JSON.stringify(await getWhosTurn())
 
-        console.log(boardStateFromCall)
+        console.log(await getBoardState())
         console.log(whosTurnFromCall)
         console.log(myPlayerStateFromCall)
 

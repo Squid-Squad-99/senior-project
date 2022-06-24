@@ -24,16 +24,41 @@ const RequestMatchButton = ({text}: Props) => {
   // console.log(myAddress);
   const goGameAddress = contractAddresses[chainId][0];
 
-  const {runContractFunction: requestMatch} = useWeb3Contract({
+  const dispatch = useNotification()
+
+
+  const {
+    runContractFunction: requestMatch,
+    data: enterTxResponse,
+    isLoading,
+    isFetching
+  } = useWeb3Contract({
     abi: abi,
     contractAddress: goGameAddress,
     functionName: 'requestMatch',
     params: {},
   });
 
+    const handleNewNotification = () => {
+      dispatch({
+          type: "info",
+          message: "Transaction Complete!",
+          title: "Transaction Notification",
+          position: "topL",
+          icon: "bell",
+      })
+  }
+
+  // Probably could add some error handling
+  const handleSuccess = async (tx: any) => {
+      await tx.wait(1)
+      console.log(`transaction: ${tx}`)
+      handleNewNotification()
+  }
+
   const handleOnClick = async () => {
     await requestMatch({
-        //onSuccess: handleSuccess,
+        onSuccess: handleSuccess,
         onError: (error) => console.log(error),
     })
     console.log(`request match`);
@@ -45,7 +70,7 @@ const RequestMatchButton = ({text}: Props) => {
     <button 
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
       onClick={handleOnClick}
-      disabled={isWeb3EnableLoading || !chainId}
+      disabled={isWeb3EnableLoading || !chainId || isLoading || isFetching}
     >
       {chainId ? `${text}` : "invalid chain!"}
     </button>
