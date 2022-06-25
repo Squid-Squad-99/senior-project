@@ -41,6 +41,15 @@ const Board = () => {
     },
   })
 
+  const { runContractFunction: getWhosTurn } = useWeb3Contract({
+    abi: abi,
+    contractAddress: goGameAddress,
+    functionName: "WhosTurn",
+    params: {
+        matchId: myMatchId
+    },
+  })
+
   const { runContractFunction: getMyPlayerState } = useWeb3Contract({
     abi: abi,
     contractAddress: goGameAddress,
@@ -51,14 +60,7 @@ const Board = () => {
   useEffect(() => {
     const renderBoard = async () => {
         if (isWeb3Enabled) {
-            const myPlayerStateRaw: unknown = await getMyPlayerState()
-            const myPlayerStateObject: PlayerState = myPlayerStateRaw as PlayerState
-            const matchId = myPlayerStateObject.matchId
-            console.log(`MatchId: ${matchId}`)
-            if(matchId) {
-                setMyMatchId(matchId)
-                fetchBoard()
-            }
+          await fetchBoard()
         }
     renderBoard();
     }
@@ -100,8 +102,6 @@ const Board = () => {
     );
   };
 
-
-
   const handlePieceClick = async (row: number, col: number, val: string) => {
     if (val) return; //return if val not null (piece already set)
 
@@ -111,16 +111,18 @@ const Board = () => {
     console.log(`MatchId: ${matchId}`)
     setMyMatchId(matchId)
 
-    // lastRow.current = row;
-    // lastCol.current = col;
-    updateBoard(row, col, myPlayerStateObject.stoneType === 1 ? 'black' : 'white')
+    const currentTurn = JSON.stringify(await getWhosTurn());
+    console.log(`CurrentTurn: ${currentTurn}, stone type: ${myPlayerStateObject.stoneType}`)
+    if(myPlayerStateObject.stoneType === parseInt(currentTurn)) {
+      updateBoard(row, col, myPlayerStateObject.stoneType === 1 ? 'black' : 'white')
+    }
+    else {
+      alert("It's not your turn!")
+    }
 
-    await fetchBoard();
+    // updateBoard(row, col, myPlayerStateObject.stoneType === 1 ? 'black' : 'white')
 
-
-    console.log(`CurrentBoardState2: ${board}`);
-
-
+    // await fetchBoard();
     isBlackNext.current = !isBlackNext.current; //switch turns
   }
 

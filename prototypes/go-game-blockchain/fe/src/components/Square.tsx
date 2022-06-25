@@ -60,10 +60,7 @@ const Square = (props: Props) => {
     props.onClick(props.row, props.col, props.val)
     await placeStone({
       onSuccess: handleSuccess,
-      onError: (error) => {
-        alert("It's not your turn!")
-        console.log(`errorrr: ${error.message}`);
-      },
+      onError: (error) => {console.log(error)},
     });
   }
   return (
