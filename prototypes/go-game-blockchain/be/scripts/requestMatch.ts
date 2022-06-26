@@ -1,6 +1,5 @@
-
-
-import { ethers, network } from "hardhat"
+// cli: yarn hardhat run scripts/requestMatch.ts --network localhost
+import { ethers } from "hardhat"
 
 async function requestMatch() {
     const goGame = await ethers.getContract("GoGame")

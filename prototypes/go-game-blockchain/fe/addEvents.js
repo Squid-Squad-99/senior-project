@@ -1,4 +1,5 @@
 // Only get success response when database table modified
+// cli: node addEvents.ts
 const Moralis = require("moralis/node");
 
 require("dotenv").config();
@@ -117,9 +118,9 @@ async function main() {
       useMasterKey: true,
     }
   );
-  console.log(findMatchResponse.success);
-  console.log(gameStateChangeResponse.success);
-  console.log(gameOverResponse.success);
+  // console.log(findMatchResponse.success);
+  // console.log(gameStateChangeResponse.success);
+  // console.log(gameOverResponse.success);
 
   if (
     findMatchResponse.success &&

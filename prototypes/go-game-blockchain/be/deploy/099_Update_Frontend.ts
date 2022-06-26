@@ -24,7 +24,7 @@ async function updateContractAddresses (hre: HardhatRuntimeEnvironment) {
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     if(process.env.UPDATE_FRONTEND) {
-        console.log("updating fe...")
+        console.log("Updating frontend contract address constants...")
         await updateContractAddresses(hre)
     }
 };

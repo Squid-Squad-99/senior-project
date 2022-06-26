@@ -44,3 +44,39 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+# Start server
+## Localhost
+- deploy
+```
+yarn hardhat deploy
+```
+
+- update database event 
+```
+node addEvents.js
+```
+
+- start server
+```
+yarn hardhat node
+```
+- sync server with moralis cloud
+```
+yarn hardhat:sync
+```
+
+- be sure to click "reset local chain" on moralis web ui once restart server
+- clear database
+
+
+## Rinkeby
+- deploy
+```
+yarn hardhat deploy --network rinkeby
+```
+- update database event 
+```
+node addEvents.js
+```
