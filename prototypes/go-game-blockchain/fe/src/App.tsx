@@ -37,7 +37,7 @@ useEffect(() => {
     <div className="App">
       <div className="flex">
         <Info />
-        <RequestMatchButton text="request match"/>
+        <RequestMatchButton />
         <ConnectButton moralisAuth={false}/>
       </div>
       {/* Wrapper */}
