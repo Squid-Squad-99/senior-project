@@ -19,6 +19,7 @@ const Board = () => {
 
   const [board, setBoard] = useState(Array(19).fill(Array(19).fill(null)));
   const [myMatchId, setMyMatchId] = useState(0)
+  const [whosTurn, setWhosTurn] = useState('black')
   const isBlackNext = useRef(true); //black first
 
   // const lastRow = useRef(0);
@@ -115,6 +116,7 @@ const Board = () => {
     console.log(`CurrentTurn: ${currentTurn}, stone type: ${myPlayerStateObject.stoneType}`)
     if(myPlayerStateObject.stoneType === parseInt(currentTurn)) {
       updateBoard(row, col, myPlayerStateObject.stoneType === 1 ? 'black' : 'white')
+      setWhosTurn(whosTurn === 'black' ? () => 'white' : 'black');
     }
     else {
       alert("It's not your turn!")
@@ -136,16 +138,10 @@ const Board = () => {
     })
   }
   
-  // Probably could add some error handling
-  const handleSuccess = async (tx: any) => {
-    await tx.wait(1)
-    handleNewNotification()
-    // updateUIValues() FIXME: update Info value
-  }
-
   return (
     // Cell
     <div className="my-0 mx-auto">
+        <div>Turn: {whosTurn}</div>
         {board.map((row: Array<string>, rowIndex: number) => {
             return (
               <div className="flex">

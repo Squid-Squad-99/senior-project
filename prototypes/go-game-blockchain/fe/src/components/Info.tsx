@@ -22,6 +22,7 @@ const Info = (props: Props) => {
     const [whosTurn, setWhosTurn] = useState("7")
     const [myPlayerState, setMyPlayerState] = useState("0")
     const [myMatchId, setMyMatchId] = useState(0)
+    const [myStoneType, setMyStoneType] = useState(0)
 
     const { chainId: chainIdHex, isWeb3EnableLoading, isWeb3Enabled } = useMoralis();
     const dispatch = useNotification();
@@ -63,6 +64,8 @@ const Info = (props: Props) => {
         const matchId = myPlayerStateObject.matchId
         console.log(`MatchId: ${matchId}`)
         setMyMatchId(matchId)
+
+        setMyStoneType(myPlayerStateObject.stoneType)
         
         //await getWhosTurn()
         // console.log(`WhosTurnData: ${whosTurnData}`)
@@ -107,8 +110,7 @@ const Info = (props: Props) => {
         // Cell
         <div className={ 'w-[300px] h-[30px] relative '}>
         {/* <div>Board State: {boardState}</div> */}
-        <div>Who's Turn: {whosTurn}</div>
-        <div>Player State: {myPlayerState}</div>
+        <div>My Stone Type: {myStoneType === 1 ? 'black' : 'white'}</div>
         </div>
     );
 };
