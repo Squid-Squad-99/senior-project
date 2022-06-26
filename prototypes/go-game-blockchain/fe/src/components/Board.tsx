@@ -144,11 +144,11 @@ const Board = () => {
         <div>Turn: {whosTurn}</div>
         {board.map((row: Array<string>, rowIndex: number) => {
             return (
-              <div className="flex">
+              <div key={rowIndex} className="flex">
                 {
                   row.map((col: string, colIndex: number) => {
                     return (
-                        <Square row={rowIndex} col={colIndex} val={col} onClick={handlePieceClick}/>
+                        <Square key={rowIndex + colIndex} row={rowIndex} col={colIndex} val={col} onClick={handlePieceClick}/>
                     );
                   })
                 }

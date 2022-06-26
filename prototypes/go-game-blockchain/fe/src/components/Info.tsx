@@ -84,7 +84,7 @@ const Info = (props: Props) => {
     }
 
     useEffect(() => {
-        if(isWeb3Enabled) {
+        if(isWeb3Enabled && myMatchId) {
             updateUIValues()
         }
     }, [isWeb3Enabled])

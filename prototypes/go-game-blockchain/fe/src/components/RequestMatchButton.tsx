@@ -56,10 +56,11 @@ const RequestMatchButton = () => {
     const matchId = myPlayerStateObject.matchId
     console.log(`MatchId: ${matchId}`)
     setMyMatchId(matchId.toString())
+
   }
 
   useEffect(() => {
-    if (isWeb3Enabled) {
+    if (isWeb3Enabled && myMatchId !== '0') {
         updateMatch()
     }
   }, [isWeb3Enabled])
