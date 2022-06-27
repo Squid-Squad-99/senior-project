@@ -1,11 +1,16 @@
 import { ConnectButton } from "web3uikit"
+import  RequestMatchButton from "./RequestMatchButton"
 
-const Header = () => {
+type Props = {
+  goGameAddress: string;
+}
+
+const Header = (props: Props) => {
   return (
     <div className="py-4 px-4 flex flex-row justify-between items-center">
         <div className="self-center font-bold text-xl">Blockchain Game</div>
         <div className="flex flex-row">
-            <button>Request Match</button>
+            <RequestMatchButton goGameAddress={props.goGameAddress}/>
             <ConnectButton moralisAuth={false} />
         </div>
     </div>

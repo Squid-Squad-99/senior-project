@@ -4,8 +4,12 @@ import { useMoralis, useWeb3Contract } from "react-moralis"
 import '../App.css';
 import Square from './Square'
 
+type Props = {
+  goGameAddress: string;
+  myTurn: boolean;
+}
 
-const Board = () => {
+const Board = (props: Props) => {
     const [board, setBoard] = useState(Array(19).fill(Array(19).fill(null)));
 
     const isBlackNext = useRef(true); //black first
@@ -28,28 +32,28 @@ const Board = () => {
   
     const handlePieceClick = (row: number, col: number, val: string) => {
       if (val) return; //return if val not null (piece already set)
-  
-      // lastRow.current = row;
-      // lastCol.current = col;
-  
-      updateBoard(row, col, isBlackNext.current ? "black" : "white");
-  
-      isBlackNext.current = !isBlackNext.current; //switch turns
+      if (!props.myTurn) alert("It is not your turn!")
+      else {
+        updateBoard(row, col, isBlackNext.current ? "black" : "white");
+        isBlackNext.current = !isBlackNext.current; //switch turns
+      }  
     };
 
     return (
-        <div className="flex text-center my-[60px] mx-auto">
+        <div className="flex text-center my-[20px] mx-auto">
             <div className='my-0 mx-auto'>
                 {board.map((row: Array<string>, rowIndex: number) => {
                 return (
-                    <div className='flex'>
+                    <div key={rowIndex} className='flex'>
                     {row.map((col: string, colIndex: number) => {
                         return (
                         <Square
+                            key={rowIndex + colIndex}
                             row={rowIndex}
                             col={colIndex}
                             val={col}
                             onClick={handlePieceClick}
+                            goGameAddress={props.goGameAddress}
                         />
                         );
                     })}
