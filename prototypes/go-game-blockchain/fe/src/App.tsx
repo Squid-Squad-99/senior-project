@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useMoralis, useMoralisQuery, useWeb3Contract } from 'react-moralis'
+import { useMoralis, useMoralisQuery, useMoralisSubscription, useWeb3Contract } from 'react-moralis'
 import './App.css';
 import networkMapping from './constants/networkMapping.json'
 import abi from './constants/abi.json'
@@ -20,6 +20,7 @@ function App() {
   const [myMatchId, setMyMatchId] = useState("0")
   const [myStoneType, setMyStoneType] = useState("0")
   const [whosTurn, setWhosTurn] = useState("0")
+  const [isGameOver, setIsGameOver] = useState(false)
 
 
   const { runContractFunction: getMyPlayerState } = useWeb3Contract({
@@ -38,14 +39,12 @@ function App() {
     },
 })
 
-  const { data: gameOverData, isFetching: fetchingGameOver } = useMoralisQuery(
-    "GameOver",
-    query => query.equalTo("matchId", myMatchId),
-    [],
-    {
-      live: true,
-    }
-  )
+  useMoralisSubscription("GameScore", query => query.equalTo("matchId", myMatchId), [], {
+    onCreate: data => {
+      setIsGameOver(true)
+      alert(`Game Over! (matchID: ${data.attributes.matchId})`)
+    },
+  });
 
   // FIXME: only trigger when find match event emitted
   const { data: findMatchPlayer1, isFetching: fetchingFindMatchPlayer1 } = useMoralisQuery(
@@ -87,8 +86,12 @@ function App() {
   }, [chainId, account, isWeb3Enabled, findMatchPlayer1, findMatchPlayer2, whosTurn])
 
   useEffect(() => {
-    alert("Game Over!")
-  }, [gameOverData])
+    if(isGameOver) {
+      alert("Game Over!")
+      console.log("Game Over!")
+      setIsGameOver(false)
+    }
+  }, [isGameOver])
 
   return (
     <div className="App">
@@ -98,16 +101,15 @@ function App() {
       <div>My stone type: {myStoneType}</div>
       <div>Whos turn now: {whosTurn}</div>
       {isWeb3Enabled ? (
-          (fetchingFindMatchPlayer1 || fetchingFindMatchPlayer2)
-          && <div className="mx-2"> Fetching data... </div>
-        ) || (
-          (findMatchPlayer1.length === 0 && findMatchPlayer2.length === 0) 
-          ? <div className="mx-2"> Finding a match... </div> 
-          : <Board goGameAddress={goGameAddress} myTurn={whosTurn.toString() === myStoneType.toString()}/>
-        ) : (
-        <div className="mx-2">Web3 Currently Not Enabled</div>
-        )
+          ((fetchingFindMatchPlayer1 || fetchingFindMatchPlayer2) && <div className="mx-2"> Fetching data... </div>)
+         || (
+          (findMatchPlayer1.length === 0 && findMatchPlayer2.length === 0 && myMatchId === "0") && (<div className="mx-2"> Finding a match... </div>)
+        )) : <div className="mx-2">Web3 Currently Not Enabled</div>
       }
+      <Board 
+        goGameAddress={goGameAddress} 
+        myTurn={whosTurn.toString() === myStoneType.toString()}
+        myMatchId={myMatchId}/>
     </div>
   );
 }
