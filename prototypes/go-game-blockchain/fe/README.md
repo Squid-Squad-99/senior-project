@@ -46,32 +46,68 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).
 
 
-# Start server
+# Backend Setup
+
 ## Localhost
+
+### 1. Deployments
 - deploy
 ```
+cd be
 yarn hardhat deploy
 ```
-
 - update database event 
 ```
+cd fe
 node addEvents.js
 ```
 
-- start server
+###  2. Connect your codebase to your moralis server (Hardhat)
+- start hardhat server
 ```
+cd be
 yarn hardhat node
 ```
+
+Setup your event [moralis](https://moralis.io/). You'll need a new moralis server to get started. 
+
+Sign up for a [free account here](https://moralis.io/).
+
+Once setup, update / create your `.env` file. You can use `.env.example` as a boilerplate. 
+
+```
+REACT_APP_MORALIS_SERVER_URL=XXXX
+REACT_APP_MORALIS_APP_ID=XXXX
+moralisApiKey=XXX
+moralisApiSecret=XXX
+chainId=4
+masterKey=XXX
+```
+
+With the values from your account. 
+
+Then, in your `./package.json` update the following lines:
+```
+"moralis:sync": "moralis-admin-cli connect-local-devchain --chain hardhat --moralisSubdomain XXX.usemoralis.com --frpcPath ./frp/frpc",
+"moralis:cloud": "moralis-admin-cli watch-cloud-folder  --moralisSubdomain XXX.usemoralis.com --autoSave 1 --moralisCloudfolder ./cloudFunctions",
+"moralis:logs": "moralis-admin-cli get-logs --moralisSubdomain XXX.usemoralis.com"
+```
+
+Replace the `XXX.usemoralis.com` with your subdomain, like `4444acatycat.usemoralis.com` and update the `moralis:sync` script's path to your instance of `frp` (downloaded as part of the Moralis "Devchain Proxy Server" instructions mentioned above)
+
 - sync server with moralis cloud
 ```
+cd fe
 yarn hardhat:sync
 ```
 
-- be sure to click "reset local chain" on moralis web ui once restart server
-- clear database
+- Be sure to click "reset local chain" on moralis web ui once restart server.
+- Clear the database each time after reset local chain
 
 
 ## Rinkeby
+
+### 1. Deployments
 - deploy
 ```
 yarn hardhat deploy --network rinkeby
@@ -80,3 +116,22 @@ yarn hardhat deploy --network rinkeby
 ```
 node addEvents.js
 ```
+
+### 2. Connect your codebase to your moralis server (Rinkeby)
+
+Setup your event [moralis](https://moralis.io/). You'll need a new moralis server to get started. 
+
+Sign up for a [free account here](https://moralis.io/).
+
+Once setup, update / create your `.env` file. You can use `.env.example` as a boilerplate. 
+
+```
+REACT_APP_MORALIS_SERVER_URL=XXXX
+REACT_APP_MORALIS_APP_ID=XXXX
+moralisApiKey=XXX
+moralisApiSecret=XXX
+chainId=4
+masterKey=XXX
+```
+
+With the values from your account. 
