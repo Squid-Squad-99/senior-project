@@ -11,14 +11,7 @@ async function updateContractAddresses (hre: HardhatRuntimeEnvironment) {
     const { getChainId } = hre
     const chainId = await getChainId()
     const contractAddresses = JSON.parse(fs.readFileSync(frontendContractsFile, "utf8"))
-    if(chainId in contractAddresses) {
-        if(!contractAddresses[chainId]["GoGame"].includes(goGame.address)) {
-            contractAddresses[chainId]["GoGame"].push(goGame.address)
-        }
-    }
-    else {
-        contractAddresses[chainId] = {"GoGame": [goGame.address]}
-    }
+    contractAddresses[chainId] = {"GoGame": [goGame.address]}
     fs.writeFileSync(frontendContractsFile, JSON.stringify(contractAddresses))
 };
 
