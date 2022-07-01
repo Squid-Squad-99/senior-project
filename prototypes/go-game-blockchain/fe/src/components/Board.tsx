@@ -52,7 +52,7 @@ const Board = (props: Props) => {
   
     const handlePieceClick = (row: number, col: number, val: string) => {
       if (val) return; //return if val not null (piece already set)
-      // if (!props.myTurn) alert("It is not your turn!")
+      if (!props.myTurn) alert("It is not your turn!")
       else {
         updateBoard(row, col, isBlackNext.current ? "black" : "white");
         isBlackNext.current = !isBlackNext.current; //switch turns
