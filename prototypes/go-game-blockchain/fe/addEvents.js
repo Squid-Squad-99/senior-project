@@ -118,9 +118,9 @@ async function main() {
       useMasterKey: true,
     }
   );
-  // console.log(findMatchResponse.success);
-  // console.log(gameStateChangeResponse.success);
-  // console.log(gameOverResponse.success);
+  console.log(findMatchResponse.success);
+  console.log(gameStateChangeResponse.success);
+  console.log(gameOverResponse.success);
 
   if (
     findMatchResponse.success &&

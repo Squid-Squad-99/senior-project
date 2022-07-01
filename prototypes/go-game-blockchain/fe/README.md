@@ -98,7 +98,7 @@ Replace the `XXX.usemoralis.com` with your subdomain, like `4444acatycat.usemora
 - sync server with moralis cloud
 ```
 cd fe
-yarn hardhat:sync
+yarn moralis:sync
 ```
 
 - Be sure to click "reset local chain" on moralis web ui once restart server.

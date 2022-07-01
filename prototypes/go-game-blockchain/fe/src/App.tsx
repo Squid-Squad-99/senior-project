@@ -38,13 +38,31 @@ function App() {
         matchId: myMatchId
     },
 })
-
-  useMoralisSubscription("GameScore", query => query.equalTo("matchId", myMatchId), [], {
+// query => query.equalTo("matchId", myMatchId)
+  useMoralisSubscription("GameOver", q => q, [], {
     onCreate: data => {
       setIsGameOver(true)
-      alert(`Game Over! (matchID: ${data.attributes.matchId})`)
+      alert(`Game Over! (matchID: ${data.attributes.matchId}, winner: ${data.attributes.winner})`)
+    },
+    onUpdate: data => {
+      setIsGameOver(true)
+      alert(`Game Over! (matchID: ${data.attributes.matchId}, winner: ${data.attributes.winner})`)
     },
   });
+
+  useMoralisSubscription("GameStateChange", q => q, [], {
+    onCreate: data => alert(`game: ${data.attributes.matchId}'s state changed`),
+    onUpdate: data => alert(`game: ${data.attributes.matchId}'s state updated`),
+  });
+
+  const { data: gameStateChangeData , isFetching } = useMoralisQuery(
+    "GameStateChange",
+    query => query.equalTo("matchId", myMatchId),
+    [],
+    {
+      live: true,
+    }
+  )
 
   // FIXME: only trigger when find match event emitted
   const { data: findMatchPlayer1, isFetching: fetchingFindMatchPlayer1 } = useMoralisQuery(
@@ -70,10 +88,10 @@ function App() {
   async function setupUI() {
     const myPlayerStateRaw: unknown = await getMyPlayerState()
     const myPlayerStateObject: PlayerState = myPlayerStateRaw as PlayerState
-    setMyMatchId(myPlayerStateObject.matchId.toString())
-    setMyStoneType(myPlayerStateObject.stoneType.toString())
-    console.log(`MatchId: ${myPlayerStateObject.matchId}`)
-    console.log(`StoneType: ${myPlayerStateObject.stoneType}`)
+    setMyMatchId(myPlayerStateObject?.matchId?.toString())
+    setMyStoneType(myPlayerStateObject?.stoneType?.toString())
+    console.log(`MatchId: ${myPlayerStateObject?.matchId}`)
+    console.log(`StoneType: ${myPlayerStateObject?.stoneType}`)
 
     const whosturnRaw: unknown = await getWhosTurn()
     const whosTurnStr: string = whosturnRaw as string
@@ -85,13 +103,13 @@ function App() {
     setupUI()
   }, [chainId, account, isWeb3Enabled, findMatchPlayer1, findMatchPlayer2, whosTurn])
 
-  useEffect(() => {
-    if(isGameOver) {
-      alert("Game Over!")
-      console.log("Game Over!")
-      setIsGameOver(false)
-    }
-  }, [isGameOver])
+  // useEffect(() => {
+  //   if(isGameOver) {
+  //     alert("Game Over!")
+  //     console.log("Game Over!")
+  //     setIsGameOver(false)
+  //   }
+  // }, [isGameOver])
 
   return (
     <div className="App">
@@ -108,7 +126,8 @@ function App() {
       }
       <Board 
         goGameAddress={goGameAddress} 
-        myTurn={whosTurn.toString() === myStoneType.toString()}
+        whosTurn={whosTurn}
+        myStoneType={myStoneType}
         myMatchId={myMatchId}/>
     </div>
   );

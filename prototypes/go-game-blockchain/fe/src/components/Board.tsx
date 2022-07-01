@@ -7,14 +7,15 @@ import Square from './Square'
 
 type Props = {
   goGameAddress: string;
-  myTurn: boolean;
+  whosTurn: string;
+  myStoneType: string;
   myMatchId: string;
 }
 
 const Board = (props: Props) => {
     const [board, setBoard] = useState(Array(19).fill(Array(19).fill(null)));
 
-    const isBlackNext = useRef(true); //black first
+    // const isBlackNext = useRef(true); //black first
   
     // const lastRow = useRef(0);
     // const lastCol = useRef(0);
@@ -52,10 +53,10 @@ const Board = (props: Props) => {
   
     const handlePieceClick = (row: number, col: number, val: string) => {
       if (val) return; //return if val not null (piece already set)
-      if (!props.myTurn) alert("It is not your turn!")
+      if (!(props.whosTurn.toString() === props.myStoneType.toString())) alert("It is not your turn!")
       else {
-        updateBoard(row, col, isBlackNext.current ? "black" : "white");
-        isBlackNext.current = !isBlackNext.current; //switch turns
+        updateBoard(row, col, props.myStoneType.toString() === "1" ? "black" : "white");
+        // isBlackNext.current = !isBlackNext.current; //switch turns
       }  
     };
 
