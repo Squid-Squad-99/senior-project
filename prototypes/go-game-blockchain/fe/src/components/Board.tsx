@@ -40,9 +40,9 @@ const Board = (props: Props) => {
     const updateBoard = (y: number, x: number, newValue: string) => {
       //copy a new board and assign the new value
       setBoard((board: Array<Array<string>>) =>
-        board.map((row, currentY) => {
+        board?.map((row, currentY) => {
           if (currentY !== y) return row;
-          return row.map((col, currentX) => {
+          return row?.map((col, currentX) => {
             if (currentX !== x) return col;
             return newValue;
           });
@@ -52,7 +52,7 @@ const Board = (props: Props) => {
   
     const handlePieceClick = (row: number, col: number, val: string) => {
       if (val) return; //return if val not null (piece already set)
-      if (!props.myTurn) alert("It is not your turn!")
+      // if (!props.myTurn) alert("It is not your turn!")
       else {
         updateBoard(row, col, isBlackNext.current ? "black" : "white");
         isBlackNext.current = !isBlackNext.current; //switch turns
@@ -67,18 +67,20 @@ const Board = (props: Props) => {
   
       console.log(`FetchedBoardState1: ${boardStateObject}`);
       console.log(`CurrentBoardState: ${board}`);
-  
-      setBoard((board: Array<Array<string>>) => 
-          board.map((row, currentY) => {
+
+      if(boardStateObject !== undefined) {
+        setBoard((board: Array<Array<string>>) => 
+          board?.map((row, currentY) => {
               // console.log(`row: ${row}, currentY: ${currentY}`);
-              return row.map((col, currentX) => {
+              return row?.map((col, currentX) => {
                   const curIndex = 19 * currentY + currentX;
                   if(parseInt(boardStateObject[curIndex]) === 0) return '';
                   else if(parseInt(boardStateObject[curIndex]) === 1) return 'black';
                   else return 'white';
               });
           })
-      );
+        );
+      }
     };
 
     useEffect(() => {
@@ -88,10 +90,10 @@ const Board = (props: Props) => {
     return (
         <div className="flex text-center my-[20px] mx-auto">
             <div className='my-0 mx-auto'>
-                {board.map((row: Array<string>, rowIndex: number) => {
+                {board?.map((row: Array<string>, rowIndex: number) => {
                 return (
                     <div key={rowIndex} className='flex'>
-                    {row.map((col: string, colIndex: number) => {
+                    {row?.map((col: string, colIndex: number) => {
                         return (
                         <Square
                             key={rowIndex + colIndex}
