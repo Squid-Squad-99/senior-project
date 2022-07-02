@@ -20,6 +20,7 @@ function App() {
   const [myMatchId, setMyMatchId] = useState("0")
   const [myStoneType, setMyStoneType] = useState("0")
   const [whosTurn, setWhosTurn] = useState("0")
+  const [gameStateChanged, setGameStateChanged] = useState(false)
 
   const { runContractFunction: getMyPlayerState } = useWeb3Contract({
     abi: abi,
@@ -47,10 +48,16 @@ function App() {
     },
   });
 
-  // useMoralisSubscription("GameStateChange", q => q, [], {
-  //   onCreate: data => alert(`game: ${data.attributes.matchId}'s state changed`),
-  //   onUpdate: data => alert(`game: ${data.attributes.matchId}'s state updated`),
-  // });
+  useMoralisSubscription("GameStateChange", q => q, [], {
+    onCreate: data => {
+      // alert(`game: ${data.attributes.matchId}'s state updated`)
+      setGameStateChanged(true)
+    },
+    onUpdate: data => {
+      // alert(`game: ${data.attributes.matchId}'s state updated`)
+      setGameStateChanged(true)
+    },
+  });
 
   const { data: findMatchPlayer1, isFetching: fetchingFindMatchPlayer1 } = useMoralisQuery(
     "FindMatch",
@@ -88,21 +95,29 @@ function App() {
 
   useEffect(() => {
     setupUI()
-  }, [chainId, account, isWeb3Enabled, findMatchPlayer1, findMatchPlayer2, whosTurn])
+    setGameStateChanged(false)
+  }, [chainId, account, isWeb3Enabled, findMatchPlayer1, findMatchPlayer2, whosTurn, gameStateChanged])
 
   return (
     <div className="App">
       <Header goGameAddress={goGameAddress}/>
       <hr />
-      <div className="mt-2.5">My matchID: {myMatchId}</div>
-      <div>My stone type: {myStoneType}</div>
-      <div>Whos turn now: {whosTurn}</div>
-      {isWeb3Enabled ? (
-          ((fetchingFindMatchPlayer1 || fetchingFindMatchPlayer2) && <div className="mx-2"> Fetching data... </div>)
-         || (
-          (findMatchPlayer1.length === 0 && findMatchPlayer2.length === 0 && myMatchId === "0") && (<div className="mx-2"> Finding a match... </div>)
-        )) : <div className="mx-2">Web3 Currently Not Enabled</div>
-      }
+      
+      <div className="h-20 w-60 flex flex-col justify-center my-[10px] mx-auto">
+        {isWeb3Enabled ? (
+            (((fetchingFindMatchPlayer1 || fetchingFindMatchPlayer2) 
+            && <div className="mx-2"> Fetching data... </div>) 
+            || (<div>
+                  <div >My matchID: {myMatchId}</div>
+                  <div>My stone type: {myStoneType.toString() === "1" ? "Black" : "White"}</div>
+                  <div>Whos turn now: {whosTurn.toString() === "1" ? "Black" : "White"}</div>
+                </div>)
+          )
+          || (
+            (findMatchPlayer1.length === 0 && findMatchPlayer2.length === 0 && myMatchId === "0") && (<div className="mx-2"> Finding a match... </div>)
+          )) : <div className="mx-2">Web3 Currently Not Enabled</div>
+        }
+      </div>
       <Board 
         goGameAddress={goGameAddress} 
         whosTurn={whosTurn}

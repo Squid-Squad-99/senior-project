@@ -11,7 +11,7 @@ const Header = (props: Props) => {
         <div className="self-center font-bold text-xl">Blockchain Game</div>
         <div className="flex flex-row">
             <RequestMatchButton goGameAddress={props.goGameAddress}/>
-            <ConnectButton moralisAuth={false} />
+            <ConnectButton moralisAuth={false}/>
         </div>
     </div>
   );

@@ -89,7 +89,7 @@ const Board = (props: Props) => {
     }, [gameStateChangeData])
 
     return (
-        <div className="flex text-center my-[20px] mx-auto">
+        <div className="flex text-center my-[10px] mx-auto">
             <div className='my-0 mx-auto'>
                 {board?.map((row: Array<string>, rowIndex: number) => {
                 return (
