@@ -53,9 +53,9 @@ const Board = (props: Props) => {
   
     const handlePieceClick = (row: number, col: number, val: string) => {
       if (val) return; //return if val not null (piece already set)
-      if (!(props.whosTurn.toString() === props.myStoneType.toString())) alert("It is not your turn!")
+      if (props.whosTurn !== props.myStoneType) alert("It is not your turn!")
       else {
-        updateBoard(row, col, props.myStoneType.toString() === "1" ? "black" : "white");
+        updateBoard(row, col, props.myStoneType === "black" ? "black" : "white");
         // isBlackNext.current = !isBlackNext.current; //switch turns
       }  
     };
@@ -89,7 +89,13 @@ const Board = (props: Props) => {
     }, [gameStateChangeData])
 
     return (
-        <div className="flex text-center my-[10px] mx-auto">
+        <div className="flex flex-col text-center my-[5px] mx-auto max-w-[570px]">
+            <div className="flex flex-row justify-end place-content-around">
+              {/* <div className="text-amber-500 bg-amber-100 text-base px-4 py-1 w-32 rounded-t-lg font-bold uppercase">
+                {props.whosTurn === "black" ? "⚫" : "⚪"} Turn 
+              </div> */}
+            </div>
+
             <div className='my-0 mx-auto'>
                 {board?.map((row: Array<string>, rowIndex: number) => {
                 return (
@@ -103,6 +109,7 @@ const Board = (props: Props) => {
                             val={col}
                             onClick={handlePieceClick}
                             goGameAddress={props.goGameAddress}
+                            myStoneType={props.myStoneType}
                         />
                         );
                     })}

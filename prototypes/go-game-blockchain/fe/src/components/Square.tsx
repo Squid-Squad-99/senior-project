@@ -9,6 +9,7 @@ type Props = {
     val?: string;
     onClick: Function;
     goGameAddress: string;
+    myStoneType: string;
   };
 
   
@@ -61,14 +62,15 @@ type Props = {
 
     return (
       // Cell
-      <div
-        className={
-          "bg-[#ba8c63] w-[30px] h-[30px] relative " + beforeStyle + afterStyle
-        }
-      >
+      <div className="bg-[#ba8c63] w-[30px] h-[30px] relative z-0">
+        <div className={beforeStyle + afterStyle} />
         {/* Piece */}
         <div
-          className={`w-full h-full rounded-[50%] absolute scale-50 z-50 ${
+          className={`w-full h-full rounded-[50%] scale-50 z-[50] ${
+            props.myStoneType === "black" 
+              ? (props.val !== "white" ? `hover:bg-neutral-900` : ``)
+              : (props.val !== "black" ? `hover:bg-neutral-50` : ``)
+            } ${
             props.val === "white" ? "bg-white" : ""
           } ${props.val === "black" ? "bg-black" : ""}`}
           onClick={handleSquareClick}

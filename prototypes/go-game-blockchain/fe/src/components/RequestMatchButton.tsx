@@ -41,7 +41,7 @@ const RequestMatchButton = ({goGameAddress}: Props) => {
     }
 
     return (
-        <button className="bg-slate-300 hover:bg-slate-400 text-white font-bold py-1.5 px-3 rounded-2xl ml-auto" onClick={handleOnClick}>Request match</button>
+        <button className="bg-slate-400 hover:bg-slate-500 text-white font-bold py-1.5 px-3 rounded-2xl ml-auto" onClick={handleOnClick}> + Request match</button>
     )
 }
 
