@@ -6,7 +6,7 @@ type Props = {
 };
 
   
-const Info = (props: Props) => {
+const BoardStatus = (props: Props) => {
 
 
     return (
@@ -36,4 +36,4 @@ const Info = (props: Props) => {
     );
 };
 
-export default Info;
+export default BoardStatus;
