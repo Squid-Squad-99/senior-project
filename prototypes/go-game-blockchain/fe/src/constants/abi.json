@@ -1,177 +1,210 @@
-[
-  {
-    "inputs": [],
-    "name": "GoGame__GameIsOver",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "GoGame__InvalidPlacing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "GoGame__IsNotYourTurn",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "GoGame__PlayerDontHaveMatch",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "matchId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "player1",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "player2",
-        "type": "address"
-      }
-    ],
-    "name": "FindMatch",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "matchId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "winner",
-        "type": "address"
-      }
-    ],
-    "name": "GameOver",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "matchId",
-        "type": "uint256"
-      }
-    ],
-    "name": "GameStateChange",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "matchId",
-        "type": "uint256"
-      }
-    ],
-    "name": "BoardState",
-    "outputs": [
-      {
-        "internalType": "enum GoGame.StoneType[361]",
-        "name": "",
-        "type": "uint8[361]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MyPlayerState",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "enum GoGame.StoneType",
-            "name": "stoneType",
-            "type": "uint8"
-          },
-          {
+[{
+        "inputs": [],
+        "name": "GoGame__GameIsOver",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "GoGame__InvalidPlacing",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "GoGame__IsNotYourTurn",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "GoGame__PlayerDontHaveMatch",
+        "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "matchId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "player1",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "player2",
+                "type": "address"
+            }
+        ],
+        "name": "FindMatch",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "matchId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "winner",
+                "type": "address"
+            }
+        ],
+        "name": "GameOver",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+            "indexed": true,
             "internalType": "uint256",
             "name": "matchId",
             "type": "uint256"
-          },
-          {
+        }],
+        "name": "GameStateChange",
+        "type": "event"
+    },
+    {
+        "stateMutability": "nonpayable",
+        "type": "fallback"
+    },
+    {
+        "inputs": [{
+            "internalType": "uint256",
+            "name": "matchId",
+            "type": "uint256"
+        }],
+        "name": "BoardState",
+        "outputs": [{
+            "internalType": "enum GoGame.StoneType[361]",
+            "name": "",
+            "type": "uint8[361]"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "uint256",
+            "name": "matchId",
+            "type": "uint256"
+        }],
+        "name": "GetGameState",
+        "outputs": [{
+            "components": [{
+                    "internalType": "enum GoGame.StoneType[361]",
+                    "name": "boardState",
+                    "type": "uint8[361]"
+                },
+                {
+                    "internalType": "enum GoGame.StoneType",
+                    "name": "turn",
+                    "type": "uint8"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "isOver",
+                    "type": "bool"
+                }
+            ],
+            "internalType": "struct GoGame.GameState",
+            "name": "",
+            "type": "tuple"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "uint256",
+            "name": "matchId",
+            "type": "uint256"
+        }],
+        "name": "IsOver",
+        "outputs": [{
             "internalType": "bool",
-            "name": "inGame",
+            "name": "",
             "type": "bool"
-          }
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "MyPlayerState",
+        "outputs": [{
+            "components": [{
+                    "internalType": "enum GoGame.StoneType",
+                    "name": "stoneType",
+                    "type": "uint8"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "matchId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "inGame",
+                    "type": "bool"
+                }
+            ],
+            "internalType": "struct GoGame.PlayerState",
+            "name": "",
+            "type": "tuple"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "uint8",
+                "name": "x",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint8",
+                "name": "y",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bool",
+                "name": "checkWin",
+                "type": "bool"
+            }
         ],
-        "internalType": "struct GoGame.PlayerState",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "x",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "y",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "checkWin",
-        "type": "bool"
-      }
-    ],
-    "name": "PlaceStone",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "matchId",
-        "type": "uint256"
-      }
-    ],
-    "name": "WhosTurn",
-    "outputs": [
-      {
-        "internalType": "enum GoGame.StoneType",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "requestMatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+        "name": "PlaceStone",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "uint256",
+            "name": "matchId",
+            "type": "uint256"
+        }],
+        "name": "WhosTurn",
+        "outputs": [{
+            "internalType": "enum GoGame.StoneType",
+            "name": "",
+            "type": "uint8"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "requestMatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
 ]

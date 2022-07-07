@@ -12,7 +12,7 @@ const Header = (props: Props) => {
     <div className="py-4 px-4 flex flex-row justify-between items-center">
         <div className="self-center font-bold text-xl">Blockchain Game</div>
         <div className="flex flex-row space-x-2">         
-            <RequestMatchButton goGameAddress={props.goGameAddress}/>
+            <RequestMatchButton />
             <ConnectButton moralisAuth={false}/>
         </div>
     </div>

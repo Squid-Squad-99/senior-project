@@ -5,7 +5,7 @@ import './App.css';
 import networkMapping from './constants/networkMapping.json'
 import abi from './constants/abi.json'
 import Header from 'components/Header';
-import Board from 'components/Board';
+import GameView from 'components/GameView';
 import BoardStatus from 'components/BoardStatus'
 
 interface PlayerState {
@@ -18,6 +18,7 @@ function App() {
   const { chainId, account, isWeb3Enabled } = useMoralis()
   const chainString = chainId ? parseInt(chainId).toString() : "31337"
   const goGameAddress = (networkMapping as any)[chainString].GoGame[0]
+  console.log(`game address ${goGameAddress}, chain id ${chainString}`)
 
   const [myMatchId, setMyMatchId] = useState("0")
   const [myStoneType, setMyStoneType] = useState("")
@@ -63,14 +64,14 @@ function App() {
     },
   });
 
-  const { data: findMatchPlayer1, isFetching: fetchingFindMatchPlayer1 } = useMoralisQuery(
-    "FindMatch",
-    query => query.equalTo("player1", account?.toString()),
-    [],
-    {
-      live: true,
-    }
-  )
+      const { data: findMatchPlayer1, isFetching: fetchingFindMatchPlayer1 } = useMoralisQuery(
+        "FindMatch",
+        query => query.equalTo("player1", account?.toString()),
+        [],
+        {
+          live: true,
+        }
+      )
   console.log(findMatchPlayer1)
 
   const { data: findMatchPlayer2, isFetching: fetchingFindMatchPlayer2 } = useMoralisQuery(
@@ -86,18 +87,20 @@ function App() {
   async function setupUI() {
     const myPlayerStateRaw: unknown = await getMyPlayerState()
     const myPlayerStateObject: PlayerState = myPlayerStateRaw as PlayerState
+    console.log(myPlayerStateRaw)
     setMyMatchId(myPlayerStateObject?.matchId?.toString())
     setMyStoneType(myPlayerStateObject?.stoneType?.toString() === "1" ? "black" : "white")
     console.log(`MatchId: ${myPlayerStateObject?.matchId}`)
     console.log(`StoneType: ${myPlayerStateObject?.stoneType}`)
 
     const whosturnRaw: unknown = await getWhosTurn()
+    console.log(whosturnRaw)
     const whosTurnStr: string = whosturnRaw as string
     console.log(`Whosturn: ${whosTurnStr}`)
     setWhosTurn(whosTurnStr?.toString() === "1" ? "black" : "white")
   }
 
-  useEffect(() => {
+  useEffect(() => { 
     setupUI()
     setGameStateChanged(false)
   }, [chainId, account, isWeb3Enabled, findMatchPlayer1, findMatchPlayer2, whosTurn, gameStateChanged])
@@ -119,11 +122,11 @@ function App() {
         }
       </div>
 
-      <Board 
+      {/* <Board 
         goGameAddress={goGameAddress} 
         whosTurn={whosTurn}
         myStoneType={myStoneType}
-        myMatchId={myMatchId}/>
+        myMatchId={myMatchId}/> */}
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import {ethers, network} from 'hardhat'
+import * as dotenv from "dotenv"; dotenv.config();
+import {ethers, network} from 'hardhat';
 import {HardhatRuntimeEnvironment} from 'hardhat/types';
 import {DeployFunction} from 'hardhat-deploy/types';
-import fs from 'fs'
+import fs from 'fs';
 
 
 const frontendContractsFile = "../fe/src/constants/networkMapping.json"

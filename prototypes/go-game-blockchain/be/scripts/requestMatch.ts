@@ -1,15 +1,17 @@
 // cli: yarn hardhat run scripts/requestMatch.ts --network localhost
-import { ethers } from "hardhat"
+import { ethers, getNamedAccounts } from "hardhat"
 
 async function requestMatch() {
-    const goGame = await ethers.getContract("GoGame")
-    await goGame.requestMatch()
-    const tx = await goGame.requestMatch()
+    const {player1, player2} = await getNamedAccounts();
+    let goGame = await ethers.getContract("GoGame", player1)
+    let tx = await goGame.requestMatch()
     await tx.wait(1)
-    console.log("Match requested!")
-    // if ((network.config.chainId = "31337")) {
-    //     await moveBlocks(2, (sleepAmount = 1000))
-    // }
+    console.log("player 1 Match requested!")
+
+    let goGame2 = await ethers.getContract("GoGame", player2)
+    let tx2 = await goGame2.requestMatch()
+    await tx2.wait(1)
+    console.log("player 2 Match requested!")
 }
 
 requestMatch()

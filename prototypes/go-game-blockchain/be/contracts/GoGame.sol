@@ -37,6 +37,12 @@ contract GoGame {
     uint32 matchCnt;
 
     /* public & external function  */
+    constructor() {
+        // match id 0 default
+        StoneType[361] memory boardState;
+        GameState memory gs = GameState(boardState, StoneType.White, true);
+        matchIdToGS[0] = gs;
+    }
 
     function requestMatch() public {
         address[] memory mq = matchQueue;
@@ -179,6 +185,8 @@ contract GoGame {
         }
     }
 
+
+
     /* private & internal function */
 
     function createNewGame(address p1, address p2)
@@ -237,7 +245,22 @@ contract GoGame {
         return matchIdToGS[matchId].turn;
     }
 
+    function IsOver(uint256 matchId) public view returns (bool) {
+        return matchIdToGS[matchId].isOver;
+    }
+
+
+    function GetGameState(uint256 matchId) public view returns (GameState memory){
+        return matchIdToGS[matchId];
+    }
+
     function MyPlayerState() public view returns (PlayerState memory) {
         return addressToPS[msg.sender];
+    }
+
+    /* fall back function */
+    fallback() external
+    {
+        
     }
 }

@@ -28,7 +28,7 @@ describe("GoGame Unit Testing", () => {
   beforeEach(async () => {
     // deploy contract if in local otherwise we need to deploy manaully before running test
     if (network.name == "localhost" || network.name == "hardhat") {
-      await deployments.fixture(["GoGame"]);
+      // await deployments.fixture(["GoGame"]);
     }
 
     // set up varaible
