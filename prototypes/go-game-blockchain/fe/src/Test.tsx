@@ -21,7 +21,10 @@ const Test = () => {
       if(gameState.isOver === false){
         setMetaGameState("InGame");
       }else{
-        setMetaGameState("GameOver");
+        if(metaGameState === "InGame"){
+
+          setMetaGameState("GameOver");
+        }
       }
     }
   }, [gameState, playerState, account]);
@@ -34,14 +37,14 @@ const Test = () => {
       setMetaGameState("Idle");
     }
   }, [account]);
-  
+
   return (
     <>
       {/* Header setion */}
       <div className="py-4 px-4 flex flex-row justify-between items-center bg-sky-300 border-b-4 border-slate-600 shadow">
         <div className="self-center font-bold text-xl">Blockchain Game</div>
         <div className="flex flex-row space-x-2">
-          {metaGameState === "Idle" ? (
+          {metaGameState === "Idle" || metaGameState === "GameOver" ? (
             <RequestMatchButton />
           ) : metaGameState === "SendingMatchRequest" ? (
             <div className="font-bold py-1.5 px-3 rounded-2xl ml-auto">

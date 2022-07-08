@@ -19,6 +19,7 @@ const RequestMatchButton = ({}: Props) => {
     await requestMatch({
       onSuccess: handleSuccess,
       onError: (error) => {
+        appState.setMetaGameState("Idle");
         console.log(error);
       },
     });
