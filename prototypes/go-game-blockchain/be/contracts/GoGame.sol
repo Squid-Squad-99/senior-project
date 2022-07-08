@@ -84,13 +84,13 @@ contract GoGame {
         if (
             (x < 0 || x >= 19) ||
             (y < 0 || y >= 19) ||
-            gs.boardState[x + y * 19] != StoneType.None
+            gs.boardState[uint16(x) + uint16(y) * 19] != StoneType.None
         ) {
             revert GoGame__InvalidPlacing();
         }
 
         // place stone
-        matchIdToGS[ps.matchId].boardState[x + y * 19] = ps.stoneType;
+        matchIdToGS[ps.matchId].boardState[uint16(x) + uint16(y) * 19] = ps.stoneType;
         matchIdToGS[ps.matchId].turn = ps.stoneType == StoneType.White
             ? StoneType.Black
             : StoneType.White;

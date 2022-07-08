@@ -11,7 +11,7 @@ export interface IAppContext {
   gameState: GameState,
 }
 
-type MetaGameState = "NoAccount" | "Idle" | "SendingMatchRequest" | "FindingMatch" | "InGame";
+type MetaGameState = "NoAccount" | "Idle" | "SendingMatchRequest" | "FindingMatch" | "InGame" |"GameOver";
 
 export const AppContext = createContext<IAppContext>({
   metaGameState: "Idle",

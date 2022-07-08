@@ -26,6 +26,12 @@ export interface FindMatch {
   player2: string;
 }
 
+export interface PlaceStoneParam {
+  x: number,
+  y: number,
+  checkWin: boolean
+}
+
 type Props = {
   functionName:
     | "MyPlayerState"
@@ -33,7 +39,8 @@ type Props = {
     | "BoardState"
     | "requestMatch"
     | "IsOver"
-    | "GetGameState";
+    | "GetGameState"
+    | "PlaceStone";
   params?: any;
 };
 

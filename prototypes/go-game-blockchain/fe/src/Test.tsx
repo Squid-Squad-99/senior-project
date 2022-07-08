@@ -17,20 +17,24 @@ const Test = () => {
   const { account } = useMoralis();
   useEffect(() => {
     // check is in game
-    if (playerState.matchId.toString() !== "0" && gameState.isOver === false) {
-      setMetaGameState("InGame");
+    if (account !== null && playerState.matchId.toString() !== "0" ) {
+      if(gameState.isOver === false){
+        setMetaGameState("InGame");
+      }else{
+        setMetaGameState("GameOver");
+      }
     }
-  }, [gameState, playerState]);
+  }, [gameState, playerState, account]);
 
   useEffect(() => {
     // set not account
-    if (!account) {
+    if (account === null) {
       setMetaGameState("NoAccount");
-    } else if (metaGameState !== "InGame") {
+    } else if (metaGameState !== "InGame" && metaGameState !== "GameOver") {
       setMetaGameState("Idle");
     }
   }, [account]);
-
+  
   return (
     <>
       {/* Header setion */}
@@ -52,13 +56,13 @@ const Test = () => {
               Match Id: {playerState.matchId.toString()}
             </div>
           ) : (
-            <div>meta game state wrong</div>
+            <div>not connect wallet</div>
           )}
           <ConnectButton moralisAuth={false} />
         </div>
       </div>
       {/* Game View */}
-      {metaGameState === "InGame" ? (
+      {metaGameState === "InGame" || metaGameState === "GameOver" ? (
         <div>
           <GameView />
         </div>

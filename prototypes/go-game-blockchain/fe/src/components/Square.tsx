@@ -23,15 +23,11 @@ const Square = ({ row, col, val, onClick, hoverVal }: Props) => {
       {/* Piece */}
       <div
         className={`w-full h-full rounded-[50%] scale-50 z-[50] ${
-          hoverVal
-            ? hoverVal === "black"
-              ? val !== "white"
-                ? `hover:bg-neutral-900`
-                : ``
-              : val !== "black"
-              ? `hover:bg-neutral-50`
-              : ``
-            : ""
+          hoverVal && val === "none"
+            ? hoverVal === "white"
+              ? `hover:bg-neutral-50 opacity-80`
+              : `hover:bg-neutral-900 opacity-80`
+            : ``
         } ${val === "white" ? "bg-white" : ""} ${
           val === "black" ? "bg-black" : ""
         }`}

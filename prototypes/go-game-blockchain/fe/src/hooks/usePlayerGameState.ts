@@ -1,5 +1,5 @@
 import Moralis from "moralis/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMoralis, useMoralisSubscription } from "react-moralis";
 import useGoGameContract, {
   FindMatch,
@@ -7,6 +7,7 @@ import useGoGameContract, {
   PlayerState,
 } from "./useGoGameContract";
 import { BigNumber } from "@ethersproject/bignumber";
+import useInterval from "./useInterval";
 
 const usePlayerGameState = () => {
   const [matchId, setMatchId] = useState<string>("0");
@@ -36,11 +37,9 @@ const usePlayerGameState = () => {
       console.log("get web3 not ready");
       return;
     }
+    console.log("fetch player game state...");
     // get player state
     const playerState = (await getPlayerState()) as PlayerState;
-    console.log("get player state");
-    console.log(playerState);
-    console.log(`match id: ${matchId}`);
     // check if we need to update match id again
     if (playerState.matchId.gt(BigNumber.from(matchId))) {
       setMatchId(playerState.matchId.toString());
@@ -54,12 +53,11 @@ const usePlayerGameState = () => {
       setBoradState(boardState);
       setWhosTurn(whosTurn);
       setisOver(isOver);
-      console.log("get game state");
-      console.log(boardState, whosTurn, isOver);
     }
   };
 
-
+  // heart beat fetchign
+  useInterval(fetchPlayerGameState, 1000);
   useEffect(() => {
     fetchPlayerGameState();
   }, [matchId, account]);
@@ -88,18 +86,27 @@ const usePlayerGameState = () => {
   const OnGameStateChangeEvent = async (
     data: Moralis.Object<Moralis.Attributes>
   ) => {
-    console.log("get game state change event")
-    console.log(data)
     // return if no web3 account
     if (!account) return;
-
+    
     let _matchId = data.attributes.matchId as BigNumber;
-    if(_matchId.toString() === matchId) await fetchPlayerGameState();
+    console.log(`get game state change event, match id: ${_matchId}`)
+    if(_matchId.toString() === matchId) fetchPlayerGameState();
   };
 
   useMoralisSubscription("GameStateChange", (q) => q, [], {
     onCreate: OnGameStateChangeEvent,
     onUpdate: OnGameStateChangeEvent,
+  });
+
+  const OnGameOverEvent = async (data: Moralis.Object<Moralis.Attributes>)=>{
+    const param = data.attributes as {matchId: BigNumber, winner: string};
+    console.log(`get game over event, matchId: ${param.matchId}, winner: ${param.winner}`);
+  }
+
+  useMoralisSubscription("GameOver", (q) => q, [], {
+    onCreate: OnGameOverEvent,
+    onUpdate: OnGameOverEvent,
   });
 
   const o: { playerState: PlayerState; gameState: GameState } = {
