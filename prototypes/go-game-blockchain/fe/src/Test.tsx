@@ -22,7 +22,6 @@ const Test = () => {
         setMetaGameState("InGame");
       }else{
         if(metaGameState === "InGame"){
-
           setMetaGameState("GameOver");
         }
       }

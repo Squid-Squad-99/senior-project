@@ -42,6 +42,7 @@ const usePlayerGameState = () => {
     const playerState = (await getPlayerState()) as PlayerState;
     // check if we need to update match id again
     if (playerState.matchId.gt(BigNumber.from(matchId))) {
+      setisOver(true);
       setMatchId(playerState.matchId.toString());
     } else {
       // update player state (stone type)
