@@ -4,7 +4,7 @@ namespace Army
 {
     public class MeleeSoldier : Soldier
     {
-        public override Vector2Int[] AttackPoints => _attackPoints;
+        protected override Vector2Int[] AttackPoints => _attackPoints;
 
         private readonly Vector2Int[] _attackPoints = new[]
         {

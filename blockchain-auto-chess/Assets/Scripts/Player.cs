@@ -20,4 +20,9 @@ public class Player : MonoBehaviour
         _mySoldier.Move(vInt);
         _mySoldier.Turn(vInt);
     }
+
+    private void OnFire()
+    {
+        _mySoldier.Attack();
+    }
 }
