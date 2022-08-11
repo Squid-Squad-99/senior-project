@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Army;
 using Ultility;
 using UnityEngine;
 
@@ -10,11 +11,26 @@ public class GameTiles : Singleton<GameTiles>
     public struct Tile
     {
         public Vector3 position;
+        public Soldier occupier;
     }
-    
+
     [SerializeField] private GameObject _tilePrefab;
     public readonly Tile[,] data = new Tile[8, 8];
 
+    public void PlaceSoldier(Soldier soldier, Vector2Int index)
+    {
+        //check index is not out of bound & occupied
+        if (index.x < 0 || index.x > 7 || index.y < 0 || index.y > 7)
+            throw new ArgumentException($"{index} is out of bound");
+        if (data[index.x, index.y].occupier != null) throw new ArgumentException($"{index} is already occupied");
+        data[index.x, index.y].occupier = soldier;
+        soldier.IndexPos = index;
+    }
+
+    public bool IsIndexOutOfBound(Vector2Int index)
+    {
+        return index.x < 0 || index.x > 7 || index.y < 0 || index.y > 7;
+    }
 
     protected override void Awake()
     {

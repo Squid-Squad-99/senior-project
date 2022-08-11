@@ -406,7 +406,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ba2e74103034363a8b0b218bf4cbfc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soldierPrefab: {fileID: 3166747204549202173, guid: f9207076ec6f74f0d8bf853c516ce6e6, type: 3}
+  _soldierTypes:
+  - _name: Base
+    _prefab: {fileID: 3166747204549202173, guid: f9207076ec6f74f0d8bf853c516ce6e6, type: 3}
+  - _name: Melee
+    _prefab: {fileID: 3166747204549202173, guid: a645ed474a23c496892967ff3768d8cb, type: 3}
 --- !u!4 &1769043575
 Transform:
   m_ObjectHideFlags: 0

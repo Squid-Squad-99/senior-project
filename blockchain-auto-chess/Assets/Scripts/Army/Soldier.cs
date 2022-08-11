@@ -7,11 +7,39 @@ namespace Army
 {
     public class Soldier : MonoBehaviour
     {
-        public Vector2Int IndexPos { get; private set; }
+        public Vector2Int IndexPos { get; set; }
         public Vector2Int FaceDir { get; private set; }
-        protected virtual Vector2Int[] AttackPoints => new[] {Vector2Int.up};
         public int TeamID { get; private set; }
+        private Vector2Int[] _attackPoints = {Vector2Int.up};
 
+        private class MoveTypeConverter
+        {
+            private static readonly Vector2Int Front = new Vector2Int(0, 1);
+            private static readonly Vector2Int Back = new Vector2Int(0, -1);
+            private static readonly Vector2Int Left = new Vector2Int(-1, 0);
+            private static readonly Vector2Int Right = new Vector2Int(1, 0);
+
+            public static Vector2Int GetVec(MoveType moveType)
+            {
+                switch (moveType)
+                {
+                    case MoveType.Front:
+                        return Front;
+                    case MoveType.Back:
+                        return Back;
+                    case MoveType.Left:
+                        return Left;
+                    case MoveType.Right:
+                        return Right;
+                    default:
+                        throw new ArgumentException($"dont have move type {moveType}");
+                }
+            }
+        }
+        public enum MoveType
+        {
+            Front,Back,Left,Right
+        }
 
         // reference
         private GameTiles _gameTiles;
@@ -19,16 +47,32 @@ namespace Army
         private void Awake()
         {
             _gameTiles = GameTiles.Instance;
+            // apply modifier
+            SoldierModifier soldierModifier = GetComponent<SoldierModifier>();
+            if (soldierModifier != null) _attackPoints = soldierModifier.AttackPoints ?? _attackPoints;
         }
 
-        private void SetIndexPos(Vector2Int pos)
+        private void OnDestroy()
+        {
+            SoldierManager.Instance.UnRegisterSoldier(this);
+        }
+
+        //  will check out of bound and collision
+        private void SetIndexPos(Vector2Int index)
         {
             // clamp in valid index
-            pos.x = Mathf.Clamp(pos.x, 0, 7);
-            pos.y = Mathf.Clamp(pos.y, 0, 7);
+            index.x = Mathf.Clamp(index.x, 0, 7);
+            index.y = Mathf.Clamp(index.y, 0, 7);
+            // dont move when index is occupied
+            if (_gameTiles.data[index.x, index.y].occupier)
+            {
+                index.x = IndexPos.x;
+                index.y = IndexPos.y;
+            }
+            // move in GameTiles
+            _gameTiles.PlaceSoldier(this, index);
             // position
-            IndexPos = pos;
-            transform.position = _gameTiles.data[pos.x, pos.y].position;
+            transform.position = _gameTiles.data[index.x, index.y].position;
         }
 
         private void SetFaceDir(Vector2Int faceDir)
@@ -43,15 +87,26 @@ namespace Army
 
         public void Init(Vector2Int position, Vector2Int faceDirection, int teamID = 0)
         {
+            // register
+            SoldierManager.Instance.RegisterSoldier(this);
+            //
             SetIndexPos(position);
             SetFaceDir(faceDirection);
             FaceDir = Vector2Int.up;
             TeamID = teamID;
         }
-
+        
+        // Actions
         public void Move(Vector2Int dVec)
         {
             SetIndexPos(new Vector2Int(IndexPos.x + dVec.x, IndexPos.y + dVec.y));
+        }
+
+        public void Move(MoveType moveType)
+        {
+            Vector2Int moveVec = MoveTypeConverter.GetVec(moveType);
+            Vector2Int rotatedMoveVec = RotateVecByFaceDir(moveVec);
+            SetIndexPos(new Vector2Int(IndexPos.x + rotatedMoveVec.x, IndexPos.y + rotatedMoveVec.y));
         }
 
         public void Turn(Vector2Int faceDirection)
@@ -63,9 +118,37 @@ namespace Army
 
         public void Attack()
         {
-            Vector2Int[] attackIndices = new Vector2Int[AttackPoints.Length];
+            var attackIndices = GetAttackIndices();
+
+            foreach (Vector2Int index in attackIndices)
+            {
+                StartCoroutine(Create1Sec(index, _debugSquare));
+            }
+        }
+        
+        //
+        public bool IsEnemy(Soldier other)
+        {
+            return other.TeamID != TeamID;
+        }
+
+        public Vector2Int[] GetAttackIndices()
+        {
+            Vector2Int[] attackIndices = new Vector2Int[_attackPoints.Length];
+            for (int i = 0; i < _attackPoints.Length; i++)
+            {
+                Vector2Int point = _attackPoints[i];
+                Vector2Int rotatedPoint = RotateVecByFaceDir(point);
+                attackIndices[i] = rotatedPoint + IndexPos;
+            }
+
+            return attackIndices;
+        }
+
+        private Vector2Int RotateVecByFaceDir(Vector2Int vec)
+        {
             // rotate matrix 
-            int[] rotateMatrix = new int[4];
+            int[] rotateMatrix;
             if (FaceDir == Vector2Int.up)
             {
                 rotateMatrix = new[] {1, 0, 0, 1};
@@ -86,20 +169,10 @@ namespace Army
             {
                 throw new ArgumentException($"cant handle face direction {FaceDir}");
             }
-
-            for (int i = 0; i < AttackPoints.Length; i++)
-            {
-                Vector2Int point = AttackPoints[i];
-                Vector2Int rotatedPoint = new Vector2Int(
-                    point.x * rotateMatrix[0] + point.y * rotateMatrix[1],
-                    point.x * rotateMatrix[2] + point.y * rotateMatrix[3]);
-                attackIndices[i] = rotatedPoint + IndexPos;
-            }
-
-            foreach (Vector2Int index in attackIndices)
-            {
-                StartCoroutine(Create1Sec(index, _debugSquare));
-            }
+            Vector2Int rotatedVec = new Vector2Int(
+                vec.x * rotateMatrix[0] + vec.y * rotateMatrix[1],
+                vec.x * rotateMatrix[2] + vec.y * rotateMatrix[3]);
+            return rotatedVec;
         }
 
         private IEnumerator Create1Sec(Vector2Int index, GameObject prefab)
