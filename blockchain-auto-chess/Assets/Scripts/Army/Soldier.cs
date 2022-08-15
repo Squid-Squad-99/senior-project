@@ -10,9 +10,10 @@ namespace Army
         public Vector2Int IndexPos { get; set; }
         public Vector2Int FaceDir { get; private set; }
         public int TeamID { get; private set; }
-        private Vector2Int[] _attackPoints = {Vector2Int.up};
+        public int AttackRange { get; private set; } = 1;
+        public int MoveSpeed  { get; private set; } = 1;
 
-        private class MoveTypeConverter
+        private static class MoveTypeConverter
         {
             private static readonly Vector2Int Front = new Vector2Int(0, 1);
             private static readonly Vector2Int Back = new Vector2Int(0, -1);
@@ -49,12 +50,15 @@ namespace Army
             _gameTiles = GameTiles.Instance;
             // apply modifier
             SoldierModifier soldierModifier = GetComponent<SoldierModifier>();
-            if (soldierModifier != null) _attackPoints = soldierModifier.AttackPoints ?? _attackPoints;
+            if (soldierModifier != null)
+            {
+                AttackRange = soldierModifier.AttackRange ?? AttackRange;
+            }
         }
 
         private void OnDestroy()
         {
-            SoldierManager.Instance.UnRegisterSoldier(this);
+            if (SoldierManager.Instance != null) SoldierManager.Instance.UnRegisterSoldier(this);
         }
 
         //  will check out of bound and collision
@@ -99,7 +103,15 @@ namespace Army
         // Actions
         public void Move(Vector2Int dVec)
         {
+            // check can move their
+            int dis = math.abs(dVec.x) + math.abs(dVec.y);
+            if (dis > MoveSpeed)
+            {
+                throw new ArgumentException($"cant move this quick, dis: {dis}");
+            }
+            // move
             SetIndexPos(new Vector2Int(IndexPos.x + dVec.x, IndexPos.y + dVec.y));
+            SetFaceDir(dVec);
         }
 
         public void Move(MoveType moveType)
@@ -107,23 +119,27 @@ namespace Army
             Vector2Int moveVec = MoveTypeConverter.GetVec(moveType);
             Vector2Int rotatedMoveVec = RotateVecByFaceDir(moveVec);
             SetIndexPos(new Vector2Int(IndexPos.x + rotatedMoveVec.x, IndexPos.y + rotatedMoveVec.y));
-        }
-
-        public void Turn(Vector2Int faceDirection)
-        {
-            SetFaceDir(faceDirection);
+            SetFaceDir(moveVec);
         }
 
         [SerializeField] private GameObject _debugSquare;
+        
 
-        public void Attack()
+        public void Attack(Vector2Int attackPos)
         {
-            var attackIndices = GetAttackIndices();
+            // check can attack
+            if (!IsInAttackRange(attackPos)) throw new ArgumentException($"can't attack position out of range");
+            // attack
+            // 1. turn to face enemy
+            SetFaceDir(AttackPosFaceDirection(attackPos));
+            StartCoroutine(Create1Sec(attackPos, _debugSquare));
+        }
 
-            foreach (Vector2Int index in attackIndices)
-            {
-                StartCoroutine(Create1Sec(index, _debugSquare));
-            }
+        public bool IsInAttackRange(Vector2Int attackPos)
+        {
+            // check in range
+            var dis =math.abs(IndexPos.x - attackPos.x) + math.abs(IndexPos.y - attackPos.y);
+            return dis <= AttackRange;
         }
         
         //
@@ -132,18 +148,23 @@ namespace Army
             return other.TeamID != TeamID;
         }
 
-        public Vector2Int[] GetAttackIndices()
+        private Vector2Int AttackPosFaceDirection(Vector2Int attackPos)
         {
-            Vector2Int[] attackIndices = new Vector2Int[_attackPoints.Length];
-            for (int i = 0; i < _attackPoints.Length; i++)
+            Vector2Int dVec = attackPos - IndexPos;
+            if (math.abs(dVec.x) > math.abs(dVec.y))
             {
-                Vector2Int point = _attackPoints[i];
-                Vector2Int rotatedPoint = RotateVecByFaceDir(point);
-                attackIndices[i] = rotatedPoint + IndexPos;
+                dVec.y = 0;
+                dVec.x /= math.abs(dVec.x);
+            }
+            else
+            {
+                dVec.x = 0;
+                dVec.y /= math.abs(dVec.y);
             }
 
-            return attackIndices;
+            return dVec;
         }
+        
 
         private Vector2Int RotateVecByFaceDir(Vector2Int vec)
         {

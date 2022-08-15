@@ -1,20 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Army;
+using Army.AI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    private Soldier _mySoldier, _enemy;
-    private SoldierAI _mySoldierAI;
-    
+
     private void Start()
     {
-        _mySoldier = SoldierFactory.Instance.CreateSoldier("Melee",new Vector2Int(1,1), 1);
-        _enemy = SoldierFactory.Instance.CreateSoldier("Melee",new Vector2Int(6,6), 2);
-        _mySoldierAI = _mySoldier.GetComponent<SoldierAI>();
+        SoldierFactory.Instance.CreateSoldier("Base", new Vector2Int(5, 6), 1);
+        SoldierFactory.Instance.CreateSoldier("Base", new Vector2Int(2, 1), 2);
     }
 
     public void OnMove(InputValue value)
@@ -27,17 +26,34 @@ public class Player : MonoBehaviour
 
     private void OnFire()
     {
-        var (actionType, payload) = _mySoldierAI.DecideAction();
-        switch (actionType)
+        Dictionary<Soldier, SoldierAI> soldierAis = new Dictionary<Soldier, SoldierAI>();
+        Dictionary<Soldier, (ActionTypes, Payload )> actions =
+            new Dictionary<Soldier, (ActionTypes, Payload )>();
+        foreach (Soldier soldier in SoldierManager.Instance.Soldiers)
         {
-            case SoldierAI.ActionType.Attack:
-                _mySoldier.Attack();
-                break;
-            case SoldierAI.ActionType.Move:
-                SoldierAI.MoveActionPayload movePayLoad = payload as SoldierAI.MoveActionPayload;
-                _mySoldier.Move(movePayLoad!.dVec);
-                break;
+            soldierAis.Add(soldier, soldier.GetComponent<SoldierAI>());
         }
-        // _mySoldier.Attack();
+
+        foreach (var (soldier, ai) in soldierAis.Select(x => (x.Key, x.Value)))
+        {
+            actions.Add(soldier, ai.DecideAction());
+        }
+
+        foreach (var (soldier, (actionType, payload) ) in actions.Select(x => (x.Key, x.Value)))
+        {
+            switch (actionType)
+            {
+                case ActionTypes.Attack:
+                    AttackActionPayload attackPayLoad = payload as AttackActionPayload;
+                    soldier.Attack(attackPayLoad!.AttackPos);
+                    break;
+                case ActionTypes.Move:
+                    MoveActionPayload movePayLoad = payload as MoveActionPayload;
+                    soldier.Move(movePayLoad!.DVec);
+                    break;
+            }
+        }
+
+        
     }
 }

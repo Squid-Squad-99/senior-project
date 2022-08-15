@@ -11,7 +11,7 @@ namespace Ultility
             {
                 if (_instance == null)
                 {
-                    _instance = GameObject.Find(typeof(T).Name).GetComponent<T>();
+                    _instance = GameObject.Find(typeof(T).Name)?.GetComponent<T>();
                 }
 
                 return _instance;

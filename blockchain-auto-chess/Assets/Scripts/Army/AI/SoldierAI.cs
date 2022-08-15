@@ -2,31 +2,11 @@ using System;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Army
+namespace Army.AI
 {
     [RequireComponent(typeof(Soldier))]
     public class SoldierAI : MonoBehaviour
     {
-        public enum ActionType
-        {
-            DoNothing,
-            Attack,
-            Move
-        }
-
-        public class Payload
-        {
-        }
-
-        public class MoveActionPayload : Payload
-        {
-            public Vector2Int dVec;
-
-            public MoveActionPayload(Vector2Int dVec)
-            {
-                this.dVec = dVec;
-            }
-        }
 
         private Soldier _soldier;
 
@@ -35,14 +15,14 @@ namespace Army
             _soldier = GetComponent<Soldier>();
         }
 
-        protected Soldier GetNearestEnemy()
+        private Soldier GetNearestEnemy()
         {
             Soldier nearestSoldier = null;
             int nearestDistance = 1000;
             foreach (Soldier other in SoldierManager.Instance.Soldiers)
             {
                 // check  is enemy
-                if(!_soldier.IsEnemy(other)) continue;
+                if (!_soldier.IsEnemy(other)) continue;
                 // check is nearest
                 Vector2Int disVec = other.IndexPos - _soldier.IndexPos;
                 int distance = math.abs(disVec.x) + math.abs(disVec.y);
@@ -56,22 +36,34 @@ namespace Army
             return nearestSoldier;
         }
 
-        public (ActionType, Payload) DecideAction()
+        public (ActionTypes, Payload) DecideAction()
         {
-            Soldier enemy = GetNearestEnemy();
-            // check if can attack
-            Vector2Int[] attackIndices = _soldier.GetAttackIndices();
-            bool canHitEnemy =Array.IndexOf(attackIndices,enemy.IndexPos) != -1;
-            if (canHitEnemy)
+            var enemy = GetNearestEnemy();
+            // check if enemy is in range
+            bool enemyInRange = _soldier.IsInAttackRange(enemy.IndexPos);
+            if (enemyInRange)
             {
-                return (ActionType.Attack, new Payload());
+                return (ActionTypes.Attack, new AttackActionPayload(enemy.IndexPos));
             }
+
             // move to nearest enemy
             Vector2Int disVec = enemy.IndexPos - _soldier.IndexPos;
             int biggerAttr = math.max(math.abs(disVec.x), math.abs(disVec.y));
             Vector2Int dVec = disVec / biggerAttr;
-            if (dVec.x + dVec.y != 1) dVec.x--;
-            return (ActionType.Move, new MoveActionPayload(dVec));
+            Debug.Log(dVec);
+            if (math.abs(dVec.x) == 1 && math.abs(dVec.x) == math.abs(dVec.y))
+            {
+                // make sure soldier will not run in loop
+                if (dVec.x == 1 && dVec.y == 1) dVec.y = 0;
+                else if (dVec.x == -1 && dVec.y == -1) dVec.x = 0;
+                else
+                {
+                    if (dVec.x == -1) dVec.x = 0;
+                    else if (dVec.y == -1) dVec.y = 0;
+                }
+            }
+
+            return (ActionTypes.Move, new MoveActionPayload(dVec));
         }
     }
 }

@@ -22,7 +22,7 @@ public class GameTiles : Singleton<GameTiles>
         //check index is not out of bound & occupied
         if (index.x < 0 || index.x > 7 || index.y < 0 || index.y > 7)
             throw new ArgumentException($"{index} is out of bound");
-        if (data[index.x, index.y].occupier != null) throw new ArgumentException($"{index} is already occupied");
+        if (data[index.x, index.y].occupier != null && data[index.x, index.y].occupier != soldier) throw new ArgumentException($"{index} is already occupied");
         data[index.x, index.y].occupier = soldier;
         soldier.IndexPos = index;
     }

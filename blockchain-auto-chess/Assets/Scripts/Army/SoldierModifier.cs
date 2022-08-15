@@ -5,6 +5,7 @@ namespace Army
 {
     public class SoldierModifier : MonoBehaviour
     {
+        public int? AttackRange;
         [CanBeNull]
         public Vector2Int[] AttackPoints => new[]
         {
