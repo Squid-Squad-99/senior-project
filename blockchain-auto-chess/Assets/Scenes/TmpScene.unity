@@ -495,8 +495,6 @@ MonoBehaviour:
   _soldierTypes:
   - _name: Base
     _prefab: {fileID: 3166747204549202173, guid: f9207076ec6f74f0d8bf853c516ce6e6, type: 3}
-  - _name: Melee
-    _prefab: {fileID: 5872572073794914333, guid: a645ed474a23c496892967ff3768d8cb, type: 3}
   _teamMaterials:
   - _teamID: 0
     _material: {fileID: 2100000, guid: 4c09e3334b68b41bbaedfca25cf88866, type: 2}
