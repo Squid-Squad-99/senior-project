@@ -123,6 +123,49 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &587397912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 587397914}
+  - component: {fileID: 587397913}
+  m_Layer: 0
+  m_Name: CoroutineManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &587397913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587397912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8460dd2040c545a486df9a07555408a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &587397914
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587397912}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &916601268
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,6 +497,13 @@ MonoBehaviour:
     _prefab: {fileID: 3166747204549202173, guid: f9207076ec6f74f0d8bf853c516ce6e6, type: 3}
   - _name: Melee
     _prefab: {fileID: 5872572073794914333, guid: a645ed474a23c496892967ff3768d8cb, type: 3}
+  _teamMaterials:
+  - _teamID: 0
+    _material: {fileID: 2100000, guid: 4c09e3334b68b41bbaedfca25cf88866, type: 2}
+  - _teamID: 1
+    _material: {fileID: 2100000, guid: 01767a9352e104e53b2ae7b328f7c002, type: 2}
+  - _teamID: 2
+    _material: {fileID: 2100000, guid: dbc1c968165174fe0893783e366a9596, type: 2}
 --- !u!4 &1769043575
 Transform:
   m_ObjectHideFlags: 0

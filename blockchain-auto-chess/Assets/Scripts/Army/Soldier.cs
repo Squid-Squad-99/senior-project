@@ -9,9 +9,12 @@ namespace Army
     {
         public Vector2Int IndexPos { get; set; }
         public Vector2Int FaceDir { get; private set; }
-        public int TeamID { get; private set; }
+        public TeamIDTypes TeamID { get; private set; }
+        public int Health { get; private set; }
         public int AttackRange { get; private set; } = 1;
-        public int MoveSpeed  { get; private set; } = 1;
+        public int MoveSpeed { get; private set; } = 1;
+        public int MaxHealth { get; private set; } = 10;
+        public int Strength { get; private set; } = 3;
 
         private static class MoveTypeConverter
         {
@@ -37,9 +40,13 @@ namespace Army
                 }
             }
         }
+
         public enum MoveType
         {
-            Front,Back,Left,Right
+            Front,
+            Back,
+            Left,
+            Right
         }
 
         // reference
@@ -48,12 +55,6 @@ namespace Army
         private void Awake()
         {
             _gameTiles = GameTiles.Instance;
-            // apply modifier
-            SoldierModifier soldierModifier = GetComponent<SoldierModifier>();
-            if (soldierModifier != null)
-            {
-                AttackRange = soldierModifier.AttackRange ?? AttackRange;
-            }
         }
 
         private void OnDestroy()
@@ -73,6 +74,7 @@ namespace Army
                 index.x = IndexPos.x;
                 index.y = IndexPos.y;
             }
+
             // move in GameTiles
             _gameTiles.PlaceSoldier(this, index);
             // position
@@ -89,17 +91,25 @@ namespace Army
             transform.rotation = Quaternion.Euler(0, turnDegree, 0);
         }
 
-        public void Init(Vector2Int position, Vector2Int faceDirection, int teamID = 0)
+        public void Init(Vector2Int position, Vector2Int faceDirection, TeamIDTypes teamID = TeamIDTypes.None)
         {
             // register
             SoldierManager.Instance.RegisterSoldier(this);
-            //
+            // apply modifier
+            SoldierAttrModifier soldierAttrModifier = GetComponent<SoldierAttrModifier>();
+            if (soldierAttrModifier != null)
+            {
+                AttackRange = soldierAttrModifier.AttackRange ?? AttackRange;
+            }
+
+            // set init value
             SetIndexPos(position);
             SetFaceDir(faceDirection);
             FaceDir = Vector2Int.up;
             TeamID = teamID;
+            Health = MaxHealth;
         }
-        
+
         // Actions
         public void Move(Vector2Int dVec)
         {
@@ -109,6 +119,7 @@ namespace Army
             {
                 throw new ArgumentException($"cant move this quick, dis: {dis}");
             }
+
             // move
             SetIndexPos(new Vector2Int(IndexPos.x + dVec.x, IndexPos.y + dVec.y));
             SetFaceDir(dVec);
@@ -123,25 +134,42 @@ namespace Army
         }
 
         [SerializeField] private GameObject _debugSquare;
-        
+
 
         public void Attack(Vector2Int attackPos)
         {
             // check can attack
             if (!IsInAttackRange(attackPos)) throw new ArgumentException($"can't attack position out of range");
             // attack
-            // 1. turn to face enemy
+            // 1. attack
+            Soldier enemy = _gameTiles.data[attackPos.x, attackPos.y].occupier;
+            if (enemy)
+            {
+                enemy.TakeDamage(Strength);
+            }
+
+            // 2. turn to face enemy
             SetFaceDir(AttackPosFaceDirection(attackPos));
-            StartCoroutine(Create1Sec(attackPos, _debugSquare));
+            // 3. animation
+            CoroutineManager.Instance.StartCoroutine(Create1Sec(attackPos, _debugSquare));
+        }
+
+        public void TakeDamage(int damage)
+        {
+            Health = math.max(Health - damage, 0);
+            if (Health == 0)
+            {
+                Destroy(gameObject);
+            }
         }
 
         public bool IsInAttackRange(Vector2Int attackPos)
         {
             // check in range
-            var dis =math.abs(IndexPos.x - attackPos.x) + math.abs(IndexPos.y - attackPos.y);
+            var dis = math.abs(IndexPos.x - attackPos.x) + math.abs(IndexPos.y - attackPos.y);
             return dis <= AttackRange;
         }
-        
+
         //
         public bool IsEnemy(Soldier other)
         {
@@ -164,7 +192,7 @@ namespace Army
 
             return dVec;
         }
-        
+
 
         private Vector2Int RotateVecByFaceDir(Vector2Int vec)
         {
@@ -190,6 +218,7 @@ namespace Army
             {
                 throw new ArgumentException($"cant handle face direction {FaceDir}");
             }
+
             Vector2Int rotatedVec = new Vector2Int(
                 vec.x * rotateMatrix[0] + vec.y * rotateMatrix[1],
                 vec.x * rotateMatrix[2] + vec.y * rotateMatrix[3]);

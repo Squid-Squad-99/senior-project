@@ -39,6 +39,11 @@ namespace Army.AI
         public (ActionTypes, Payload) DecideAction()
         {
             var enemy = GetNearestEnemy();
+            // check have enemy
+            if (enemy == null)
+            {
+                return (ActionTypes.DoNothing, new Payload()); 
+            }
             // check if enemy is in range
             bool enemyInRange = _soldier.IsInAttackRange(enemy.IndexPos);
             if (enemyInRange)
@@ -50,7 +55,6 @@ namespace Army.AI
             Vector2Int disVec = enemy.IndexPos - _soldier.IndexPos;
             int biggerAttr = math.max(math.abs(disVec.x), math.abs(disVec.y));
             Vector2Int dVec = disVec / biggerAttr;
-            Debug.Log(dVec);
             if (math.abs(dVec.x) == 1 && math.abs(dVec.x) == math.abs(dVec.y))
             {
                 // make sure soldier will not run in loop

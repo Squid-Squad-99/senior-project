@@ -12,18 +12,30 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        SoldierFactory.Instance.CreateSoldier("Base", new Vector2Int(5, 6), 1);
-        SoldierFactory.Instance.CreateSoldier("Base", new Vector2Int(2, 1), 2);
+        Vector2Int[] blueTeam = new[]
+        {
+            new Vector2Int(1, 7),
+            new Vector2Int(2, 5),
+            new Vector2Int(1, 3),
+            
+        };
+        Vector2Int[] redTeam = new[]
+        {
+            new Vector2Int(7, 7),
+            new Vector2Int(7, 6),
+            new Vector2Int(7, 5)
+            
+        };
+        foreach (var pos in blueTeam)
+        {
+            SoldierFactory.Instance.CreateSoldier("Base", pos, TeamIDTypes.Blue);
+        }
+        foreach (var pos in redTeam)
+        {
+            SoldierFactory.Instance.CreateSoldier("Base", pos, TeamIDTypes.Red);
+        }
     }
-
-    public void OnMove(InputValue value)
-    {
-        // var vFloat = value.Get<Vector2>();
-        // var vInt = Vector2Int.RoundToInt(vFloat);
-        // _mySoldier.Move(vInt);
-        // _mySoldier.Turn(vInt);
-    }
-
+    
     private void OnFire()
     {
         Dictionary<Soldier, SoldierAI> soldierAis = new Dictionary<Soldier, SoldierAI>();
