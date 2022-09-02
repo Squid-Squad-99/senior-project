@@ -9,7 +9,7 @@ namespace Army
     {
         public Vector2Int IndexPos { get; set; }
         public Vector2Int FaceDir { get; private set; }
-        public TeamIDTypes TeamID { get; private set; }
+        public TeamColorTypes TeamColor { get; private set; }
         public int Health { get; private set; }
         public int AttackRange { get; private set; } = 1;
         public int MoveSpeed { get; private set; } = 1;
@@ -91,7 +91,7 @@ namespace Army
             transform.rotation = Quaternion.Euler(0, turnDegree, 0);
         }
 
-        public void Init(Vector2Int position, Vector2Int faceDirection, TeamIDTypes teamID = TeamIDTypes.None)
+        public void Init(Vector2Int position, Vector2Int faceDirection, TeamColorTypes teamColor = TeamColorTypes.None)
         {
             // register
             SoldierManager.Instance.RegisterSoldier(this);
@@ -106,7 +106,7 @@ namespace Army
             SetIndexPos(position);
             SetFaceDir(faceDirection);
             FaceDir = Vector2Int.up;
-            TeamID = teamID;
+            TeamColor = teamColor;
             Health = MaxHealth;
         }
 
@@ -173,7 +173,7 @@ namespace Army
         //
         public bool IsEnemy(Soldier other)
         {
-            return other.TeamID != TeamID;
+            return other.TeamColor != TeamColor;
         }
 
         private Vector2Int AttackPosFaceDirection(Vector2Int attackPos)

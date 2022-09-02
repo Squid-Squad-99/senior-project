@@ -1,71 +1,41 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Army;
-using Army.AI;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+        public TeamColorTypes ArmyTeamColor { get; private set; }
+        public Dictionary<int,SoldierFactory.SoldierType> CardInHand { get; private set; } = new Dictionary<int,SoldierFactory.SoldierType>();
 
-    private void Start()
-    {
-        Vector2Int[] blueTeam = new[]
+        public void Init(TeamColorTypes armyTeamColor)
         {
-            new Vector2Int(1, 7),
-            new Vector2Int(2, 5),
-            new Vector2Int(1, 3),
-            
-        };
-        Vector2Int[] redTeam = new[]
-        {
-            new Vector2Int(7, 7),
-            new Vector2Int(7, 6),
-            new Vector2Int(7, 5)
-            
-        };
-        foreach (var pos in blueTeam)
-        {
-            SoldierFactory.Instance.CreateSoldier("Base", pos, TeamIDTypes.Blue);
-        }
-        foreach (var pos in redTeam)
-        {
-            SoldierFactory.Instance.CreateSoldier("Base", pos, TeamIDTypes.Red);
-        }
-    }
-    
-    private void OnFire()
-    {
-        Dictionary<Soldier, SoldierAI> soldierAis = new Dictionary<Soldier, SoldierAI>();
-        Dictionary<Soldier, (ActionTypes, Payload )> actions =
-            new Dictionary<Soldier, (ActionTypes, Payload )>();
-        foreach (Soldier soldier in SoldierManager.Instance.Soldiers)
-        {
-            soldierAis.Add(soldier, soldier.GetComponent<SoldierAI>());
+                ArmyTeamColor = armyTeamColor;
         }
 
-        foreach (var (soldier, ai) in soldierAis.Select(x => (x.Key, x.Value)))
+        public void ClearHand()
         {
-            actions.Add(soldier, ai.DecideAction());
+                CardInHand.Clear();
         }
 
-        foreach (var (soldier, (actionType, payload) ) in actions.Select(x => (x.Key, x.Value)))
+        public void FillHand(List<SoldierFactory.SoldierType> cards)
         {
-            switch (actionType)
-            {
-                case ActionTypes.Attack:
-                    AttackActionPayload attackPayLoad = payload as AttackActionPayload;
-                    soldier.Attack(attackPayLoad!.AttackPos);
-                    break;
-                case ActionTypes.Move:
-                    MoveActionPayload movePayLoad = payload as MoveActionPayload;
-                    soldier.Move(movePayLoad!.DVec);
-                    break;
-            }
+                ClearHand();
+                for (int i = 0; i < cards.Count; i++)
+                {
+                       CardInHand.Add(i, cards[i]);
+                }
         }
 
+        public IEnumerator MyTurnToPlaceSoldier()
+        {
+                yield break;
+        }
         
-    }
+        public void UseCard(int cardIndex, Vector2Int soldierPos)
+        {
+                SoldierFactory.SoldierType soldierType = CardInHand[cardIndex];
+                CardInHand.Remove(cardIndex);
+                SoldierFactory.Instance.CreateSoldier(soldierType._name, soldierPos, ArmyTeamColor);
+        }
 }

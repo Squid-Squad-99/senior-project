@@ -8,26 +8,33 @@ namespace Army
 {
     public class SoldierFactory : Singleton<SoldierFactory>
     {
+        public enum SoldierNameEnum
+        {
+            Base,
+            Melee,
+        }
+        
         [Serializable]
         public struct SoldierType
         {
-            public string _name;
+            public SoldierNameEnum _name;
             public GameObject _prefab;
+            public GameObject _cardFrame;
         }
         [SerializeField] private List<SoldierType> _soldierTypes = new List<SoldierType>();
-        private readonly Dictionary<string, SoldierType> _soldierTypeDict = new Dictionary<string, SoldierType>();
+        public readonly Dictionary<SoldierNameEnum, SoldierType> soldierTypeDict = new Dictionary<SoldierNameEnum, SoldierType>();
         
         [Serializable]
         public struct TeamMaterial
         {
-            public TeamIDTypes _teamID;
+            public TeamColorTypes _teamColor;
             public Material _material;
         }
 
         [SerializeField] private List<TeamMaterial> _teamMaterials = new List<TeamMaterial>();
 
-        private readonly Dictionary<TeamIDTypes, TeamMaterial> _teamMaterialDict =
-            new Dictionary<TeamIDTypes, TeamMaterial>();
+        private readonly Dictionary<TeamColorTypes, TeamMaterial> _teamMaterialDict =
+            new Dictionary<TeamColorTypes, TeamMaterial>();
         private GameTiles _gameTiles;
 
         protected override void Awake()
@@ -37,32 +44,32 @@ namespace Army
             //
             foreach (SoldierType soldierType in _soldierTypes)
             {
-                _soldierTypeDict.Add(soldierType._name, soldierType);
+                soldierTypeDict.Add(soldierType._name, soldierType);
             }
 
             foreach (TeamMaterial teamMaterial in _teamMaterials)
             {
-                _teamMaterialDict.Add(teamMaterial._teamID, teamMaterial);
+                _teamMaterialDict.Add(teamMaterial._teamColor, teamMaterial);
             }
         }
 
-        private SoldierType GetSoldierType(string soldierName)
+        private SoldierType GetSoldierType(SoldierNameEnum soldierName)
         {
-            bool haveType= _soldierTypeDict.ContainsKey(soldierName);
+            bool haveType= soldierTypeDict.ContainsKey(soldierName);
             if (!haveType) throw new ArgumentException($"dont have soldier type named: {soldierName}");
-            return _soldierTypeDict[soldierName];
+            return soldierTypeDict[soldierName];
         }
     
-        public Soldier CreateSoldier(string soldierTypeName, Vector2Int pos, TeamIDTypes teamId = TeamIDTypes.None)
+        public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor = TeamColorTypes.None)
         {
             SoldierType soldierType = GetSoldierType(soldierTypeName);
             // get soldier  prefab
             GameObject soldierPrefab = soldierType._prefab;
             Vector3 tilePos = _gameTiles.data[pos.x, pos.y].position;
             Soldier soldier = Instantiate(soldierPrefab, tilePos, soldierPrefab.transform.rotation).GetComponent<Soldier>();
-            soldier.Init(pos, new Vector2Int(0,1), teamId);
+            soldier.Init(pos, new Vector2Int(0,1), teamColor);
             // set team material
-            soldier.GetComponent<Renderer>().material =  _teamMaterialDict[teamId]._material;
+            soldier.GetComponent<Renderer>().material =  _teamMaterialDict[teamColor]._material;
             
             return soldier;
         }
