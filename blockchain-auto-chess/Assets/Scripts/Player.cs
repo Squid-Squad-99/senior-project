@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Army;
@@ -7,8 +8,9 @@ public class Player : MonoBehaviour
 {
         public TeamColorTypes ArmyTeamColor { get; private set; }
         public Dictionary<int,SoldierFactory.SoldierType> CardInHand { get; private set; } = new Dictionary<int,SoldierFactory.SoldierType>();
+        public event Action HandChangeEvent;
 
-        public void Init(TeamColorTypes armyTeamColor)
+                public void Init(TeamColorTypes armyTeamColor)
         {
                 ArmyTeamColor = armyTeamColor;
         }
@@ -16,6 +18,7 @@ public class Player : MonoBehaviour
         public void ClearHand()
         {
                 CardInHand.Clear();
+                HandChangeEvent?.Invoke();
         }
 
         public void FillHand(List<SoldierFactory.SoldierType> cards)
@@ -24,6 +27,7 @@ public class Player : MonoBehaviour
                 for (int i = 0; i < cards.Count; i++)
                 {
                        CardInHand.Add(i, cards[i]);
+                       HandChangeEvent?.Invoke();
                 }
         }
 

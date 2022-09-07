@@ -37,6 +37,7 @@ namespace UI
         {
             public Image _cardFramePlaceHolder;
             public Image _glowImage;
+            public GameObject _frameFocusObject;
             public Image _characterPlaceHolder;
             public TMP_Text _characterNamePlaceHolder;
         }
@@ -70,7 +71,8 @@ namespace UI
 
         public void FocusCard(bool focus)
         {
-            _internalReference._glowImage.gameObject.SetActive(focus);
+            _internalReference._frameFocusObject.SetActive(focus);
         }
+        
     }
 }
