@@ -39,7 +39,6 @@ public class LocalUser : Singleton<LocalUser>
     private IEnumerator FocusMouseHitTile()
     {
         
-        Tile preHitTile = null;
         while (true)
         {
             if (_mouseHitProvider.MouseHitObject != null)
@@ -47,13 +46,11 @@ public class LocalUser : Singleton<LocalUser>
                 var newTile = _mouseHitProvider.MouseHitObject.GetComponent<Tile>();
                 if (newTile != null)
                 {
-                    if (MouseHitTile == null) MouseHitTile = newTile;
-                    else if (MouseHitTile != newTile)
+                    if (newTile != MouseHitTile)
                     {
-                        preHitTile = MouseHitTile;
+                        if (MouseHitTile != null) MouseHitTile.Focus(false);
                         MouseHitTile = newTile;
-                        if (preHitTile != null) preHitTile.Focus(false);
-                        if (MouseHitTile != null) MouseHitTile.Focus(true);
+                        MouseHitTile.Focus(true);
                     }
                 }
             }
@@ -63,7 +60,7 @@ public class LocalUser : Singleton<LocalUser>
                 MouseHitTile = null;
             }
 
-            yield return new WaitForFixedUpdate();
+            yield return null;
         }
     }
 }

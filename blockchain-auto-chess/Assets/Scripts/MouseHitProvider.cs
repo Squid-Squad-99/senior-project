@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -16,10 +17,10 @@ public class MouseHitProvider : MonoBehaviour
     {
         while (true)
         {
-            if (Camera.main == null) yield return new WaitForFixedUpdate();
+            if (_camera == null) yield return new WaitForFixedUpdate();
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit rayHit;
-            if (Physics.Raycast(ray, out rayHit))
+            if (Physics.Raycast(ray, out rayHit, Single.MaxValue, LayerMask.GetMask("Tile")))
             {
                 MouseHitObject = rayHit.collider.gameObject;
             }
