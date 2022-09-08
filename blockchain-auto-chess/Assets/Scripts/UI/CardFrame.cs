@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Army;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,8 @@ namespace UI
     [ExecuteAlways]
     public class CardFrame : MonoBehaviour
     {
+        public SoldierFactory.SoldierNameEnum SoldierNameEnum;
+        
         enum CardColor
         {
             Blue,

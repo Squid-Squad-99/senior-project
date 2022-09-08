@@ -9,8 +9,9 @@ namespace UI
     public class CardGroupPanel : MonoBehaviour
     {
         public event Action<int> CardTagEvent;
+        public CardFrame SelectedCardFrame { get; private set; }
         private readonly Transform[] _slotsPos = new Transform[9];
-        private readonly Dictionary<int, GameObject> _gameObjects = new Dictionary<int, GameObject>();
+        private readonly Dictionary<int, CardFrame> _cardFrames = new Dictionary<int, CardFrame>();
         private void Awake()
         {
             int i = 0;
@@ -28,25 +29,30 @@ namespace UI
 
         public void ShowCards(Dictionary<int, SoldierFactory.SoldierType> hand)
         {
-            foreach (var card in _gameObjects.Values)
+            foreach (var card in _cardFrames.Values)
             {
                 Destroy(card);
             }
-            _gameObjects.Clear();
+            _cardFrames.Clear();
             
             foreach (var item in hand)
             {
                 int index = item.Key;
                 SoldierFactory.SoldierType soldierType = item.Value;
                 GameObject card = Instantiate(soldierType._cardFrame, _slotsPos[index].position,  soldierType._cardFrame.transform.rotation, transform);
-                _gameObjects[index] = card;
+                _cardFrames[index] = card.GetComponent<CardFrame>();
                 card.GetComponent<Button>().onClick.AddListener(()=>CardTagEvent?.Invoke(index));
             }
         }
 
         public void SelectCard(int index)
         {
-            
+            foreach (CardFrame cardFrame in _cardFrames.Values)
+            {
+                cardFrame.FocusCard(false);
+            }
+            _cardFrames[index].FocusCard(true);
+            SelectedCardFrame = _cardFrames[index];
         }
     }
 }

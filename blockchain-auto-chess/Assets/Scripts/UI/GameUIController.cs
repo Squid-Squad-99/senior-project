@@ -6,7 +6,7 @@ namespace UI
 {
     public class GameUIController : Singleton<GameUIController>
     {
-        [SerializeField] private CardGroupPanel _cardGroupPanel;
+        public CardGroupPanel CardGroupPanel;
 
         private Player _showedPlayer;
         
@@ -14,12 +14,22 @@ namespace UI
         {
             _showedPlayer = player;
             _showedPlayer.HandChangeEvent += OnPlayerStatusChange;
-            _cardGroupPanel.ShowCards(_showedPlayer.CardInHand);
+            CardGroupPanel.ShowCards(_showedPlayer.CardInHand);
         }
 
         private void OnPlayerStatusChange()
         {
-            _cardGroupPanel.ShowCards(_showedPlayer.CardInHand);
+            CardGroupPanel.ShowCards(_showedPlayer.CardInHand);
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            CardGroupPanel.CardTagEvent += (index) =>
+            {
+                CardGroupPanel.SelectCard(index);
+                
+            };
         }
 
         private void OnDestroy()
