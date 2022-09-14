@@ -69,7 +69,7 @@ namespace Army
             index.x = Mathf.Clamp(index.x, 0, 7);
             index.y = Mathf.Clamp(index.y, 0, 7);
             // dont move when index is occupied
-            if (_gameTiles.data[index.x, index.y].Occupier)
+            if (_gameTiles.Data[index.x, index.y].Occupier)
             {
                 index.x = IndexPos.x;
                 index.y = IndexPos.y;
@@ -78,7 +78,7 @@ namespace Army
             // move in GameTiles
             _gameTiles.PlaceSoldier(this, index);
             // position
-            transform.position = _gameTiles.data[index.x, index.y].Position;
+            transform.position = _gameTiles.Data[index.x, index.y].Position;
         }
 
         private void SetFaceDir(Vector2Int faceDir)
@@ -142,7 +142,7 @@ namespace Army
             if (!IsInAttackRange(attackPos)) throw new ArgumentException($"can't attack position out of range");
             // attack
             // 1. attack
-            Soldier enemy = _gameTiles.data[attackPos.x, attackPos.y].Occupier;
+            Soldier enemy = _gameTiles.Data[attackPos.x, attackPos.y].Occupier;
             if (enemy)
             {
                 enemy.TakeDamage(Strength);
@@ -227,7 +227,7 @@ namespace Army
 
         private IEnumerator Create1Sec(Vector2Int index, GameObject prefab)
         {
-            GameObject obj = Instantiate(prefab, _gameTiles.data[index.x, index.y].Position, prefab.transform.rotation);
+            GameObject obj = Instantiate(prefab, _gameTiles.Data[index.x, index.y].Position, prefab.transform.rotation);
             yield return new WaitForSeconds(1);
             Destroy(obj);
         }

@@ -9,9 +9,9 @@ namespace UI
     public class CardGroupPanel : MonoBehaviour
     {
         public event Action<int> CardTagEvent;
-        public CardFrame SelectedCardFrame { get; private set; }
+        public int SelectedIndex { get; private set; } = -1;
         private readonly Transform[] _slotsPos = new Transform[9];
-        private readonly Dictionary<int, CardFrame> _cardFrames = new Dictionary<int, CardFrame>();
+        public readonly Dictionary<int, CardFrame> CardFrames = new Dictionary<int, CardFrame>();
         private void Awake()
         {
             int i = 0;
@@ -29,30 +29,36 @@ namespace UI
 
         public void ShowCards(Dictionary<int, SoldierFactory.SoldierType> hand)
         {
-            foreach (var card in _cardFrames.Values)
+            foreach (var card in CardFrames.Values)
             {
-                Destroy(card);
+                Destroy(card.gameObject);
             }
-            _cardFrames.Clear();
+            CardFrames.Clear();
             
             foreach (var item in hand)
             {
                 int index = item.Key;
                 SoldierFactory.SoldierType soldierType = item.Value;
                 GameObject card = Instantiate(soldierType._cardFrame, _slotsPos[index].position,  soldierType._cardFrame.transform.rotation, transform);
-                _cardFrames[index] = card.GetComponent<CardFrame>();
+                CardFrames[index] = card.GetComponent<CardFrame>();
                 card.GetComponent<Button>().onClick.AddListener(()=>CardTagEvent?.Invoke(index));
             }
         }
 
         public void SelectCard(int index)
         {
-            foreach (CardFrame cardFrame in _cardFrames.Values)
+            DeSelectAll();
+            CardFrames[index].FocusCard(true);
+            SelectedIndex = index;
+        }
+
+        public void DeSelectAll()
+        {
+            foreach (CardFrame cardFrame in CardFrames.Values)
             {
                 cardFrame.FocusCard(false);
             }
-            _cardFrames[index].FocusCard(true);
-            SelectedCardFrame = _cardFrames[index];
+            SelectedIndex = -1;
         }
     }
 }

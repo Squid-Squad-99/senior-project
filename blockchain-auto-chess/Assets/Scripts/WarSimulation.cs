@@ -1,16 +1,21 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Army;
 using Army.AI;
 using Ultility;
+using UnityEngine;
 
 public class WarSimulation : Singleton<WarSimulation>
 {
-    public void StartSimulation()
+    public IEnumerator StartSimulation()
     {
-        while (SoldierManager.Instance.Soldiers.Count > 0)
+        int stepCnt = 100;
+        float stepTime = 1f;
+        while (SoldierManager.Instance.Soldiers.Count > 0 && stepCnt-- > 0)
         {
             StepSimulation();
+            yield return new WaitForSeconds(stepTime);
         }
     }
 

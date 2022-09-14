@@ -22,16 +22,6 @@ namespace UI
             CardGroupPanel.ShowCards(_showedPlayer.CardInHand);
         }
 
-        protected override void Awake()
-        {
-            base.Awake();
-            CardGroupPanel.CardTagEvent += (index) =>
-            {
-                CardGroupPanel.SelectCard(index);
-                
-            };
-        }
-
         private void OnDestroy()
         {
             if (_showedPlayer != null) _showedPlayer.HandChangeEvent -= OnPlayerStatusChange;

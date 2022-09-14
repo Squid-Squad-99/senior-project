@@ -9,18 +9,24 @@ using UnityEngine;
 public class GameTiles : Singleton<GameTiles>
 {
     [SerializeField] private GameObject _tilePrefab;
-    public readonly Tile[,] data = new Tile[8, 8];
+    public readonly Tile[,] Data = new Tile[8, 8];
+    public int TileSize { get; } = 8;
 
     public void PlaceSoldier(Soldier soldier, Vector2Int index)
     {
         //check index is not out of bound & occupied
         if (index.x < 0 || index.x > 7 || index.y < 0 || index.y > 7)
             throw new ArgumentException($"{index} is out of bound");
-        if (data[index.x, index.y].Occupier != null && data[index.x, index.y].Occupier != soldier) throw new ArgumentException($"{index} is already occupied");
+        if (Data[index.x, index.y].Occupier != null && Data[index.x, index.y].Occupier != soldier) throw new ArgumentException($"{index} is already occupied");
         //place soldier
-        data[soldier.IndexPos.x, soldier.IndexPos.y].Occupier = null;
-        data[index.x, index.y].Occupier = soldier;
+        Data[soldier.IndexPos.x, soldier.IndexPos.y].Occupier = null;
+        Data[index.x, index.y].Occupier = soldier;
         soldier.IndexPos = index;
+    }
+
+    public bool IsIndexOccupied(Vector2Int index)
+    {
+        return Data[index.x, index.y].Occupier != null;
     }
 
     public void Focus(Vector2Int index)
@@ -29,10 +35,10 @@ public class GameTiles : Singleton<GameTiles>
         {
             for (int j = 0; j < 8; j++)
             {
-                data[i,j].Focus(false);
+                Data[i,j].Focus(false);
             }
         }
-        data[index.x, index.y].Focus(true);
+        Data[index.x, index.y].Focus(true);
     }
 
     public bool IsIndexOutOfBound(Vector2Int index)
@@ -54,8 +60,8 @@ public class GameTiles : Singleton<GameTiles>
             {
                 GameObject tileGameObject = Instantiate(_tilePrefab, new Vector3(i, 0, j), _tilePrefab.transform.rotation,
                     transform);
-                data[i, j] = tileGameObject.GetComponent<Tile>();
-                data[i, j].Index = new Vector2Int(i, j);
+                Data[i, j] = tileGameObject.GetComponent<Tile>();
+                Data[i, j].Index = new Vector2Int(i, j);
             }
         }
     }

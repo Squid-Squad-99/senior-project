@@ -7,10 +7,17 @@ using UnityEngine;
 
 public class LocalUser : Singleton<LocalUser>
 {
-    public CardFrame SelectedCardFrame => GameUIController.Instance.CardGroupPanel.SelectedCardFrame;
+    public int SelectedCardFrameIndex => GameUIController.Instance.CardGroupPanel.SelectedIndex;
     public Tile MouseHitTile { get; private set; }
-    
+
+    public Player LocalPlayer { get; private set; }
+
     private MouseHitProvider _mouseHitProvider;
+
+    public void Init(Player localPlayer)
+    {
+        LocalPlayer = localPlayer;
+    }
 
     protected override void Awake()
     {
@@ -21,24 +28,45 @@ public class LocalUser : Singleton<LocalUser>
     private void Start()
     {
         StartCoroutine(FocusMouseHitTile());
+        StartCoroutine(MouseCardSelection());
     }
 
+    /// <summary>
+    /// On mouse click
+    /// </summary>
     private void OnFire()
     {
-        // placing soldier
-        if (SelectedCardFrame != null && MouseHitTile != null)
+        PlaceSoldier();
+    }
+
+    private void PlaceSoldier()
+    {
+        // use card
+        if (SelectedCardFrameIndex != -1 && MouseHitTile != null)
         {
-            SoldierFactory.Instance.CreateSoldier(
-                SelectedCardFrame.SoldierNameEnum,
-                MouseHitTile.Index,
-                TeamColorTypes.Blue
-            );
+            LocalPlayer.UseCard(SelectedCardFrameIndex, MouseHitTile.Index);
         }
+    }
+
+    private IEnumerator MouseCardSelection()
+    {
+        CardGroupPanel cardGroupPanel = GameUIController.Instance.CardGroupPanel;
+        cardGroupPanel.CardTagEvent += (index) =>
+        {
+            if (cardGroupPanel.SelectedIndex == index)
+            {
+                cardGroupPanel.DeSelectAll();
+            }
+            else
+            {
+                cardGroupPanel.SelectCard(index);
+            }
+        };
+        yield return null;
     }
 
     private IEnumerator FocusMouseHitTile()
     {
-        
         while (true)
         {
             if (_mouseHitProvider.MouseHitObject != null)

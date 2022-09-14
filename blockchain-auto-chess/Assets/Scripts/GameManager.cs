@@ -28,20 +28,26 @@ public class GameManager : Singleton<GameManager>
         // player init
         _playerA.Init(TeamColorTypes.Blue);
         _playerB.Init(TeamColorTypes.Red);
+        LocalUser.Instance.Init(_playerA);
+        AutoPlayer.Instance.StartAutoPlay(_playerB);
         // ui init
-        GameUIController.Instance.ShowPlayerStatus(_playerA);
+        GameUIController.Instance.ShowPlayerStatus(LocalUser.Instance.LocalPlayer);
         // 1.give card to each player
         var cards = GetRandSoldierCards(5);
         _playerA.FillHand(cards);
         _playerB.FillHand(cards);
-        
+
         // 2. place card to board
-        Coroutine aTurn = StartCoroutine(_playerA.MyTurnToPlaceSoldier());
-        Coroutine bTurn =StartCoroutine(_playerB.MyTurnToPlaceSoldier());
-        yield return aTurn;
-        yield return bTurn;
+        for (int i = 0; i < 4; i++)
+        {
+            Coroutine aTurn = StartCoroutine(_playerA.MyTurnToUseCard());
+            Coroutine bTurn = StartCoroutine(_playerB.MyTurnToUseCard());
+            yield return aTurn;
+            yield return bTurn;
+        }
+
         // 3. start simulation
-        // WarSimulation.Instance.StartSimulation();
+        StartCoroutine(WarSimulation.Instance.StartSimulation());
     }
 
     private List<SoldierFactory.SoldierType> GetRandSoldierCards(int num)

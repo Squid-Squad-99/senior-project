@@ -65,7 +65,7 @@ namespace Army
             SoldierType soldierType = GetSoldierType(soldierTypeName);
             // get soldier  prefab
             GameObject soldierPrefab = soldierType._prefab;
-            Vector3 tilePos = _gameTiles.data[pos.x, pos.y].Position;
+            Vector3 tilePos = _gameTiles.Data[pos.x, pos.y].Position;
             Soldier soldier = Instantiate(soldierPrefab, tilePos, soldierPrefab.transform.rotation).GetComponent<Soldier>();
             soldier.Init(pos, new Vector2Int(0,1), teamColor);
             // set team material
