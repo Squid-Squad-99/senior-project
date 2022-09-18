@@ -91,10 +91,9 @@ namespace Army
             transform.rotation = Quaternion.Euler(0, turnDegree, 0);
         }
 
-        public void Init(Vector2Int position, Vector2Int faceDirection, TeamColorTypes teamColor = TeamColorTypes.None)
+        public void Init(Vector2Int position, Vector2Int faceDirection, TeamColorTypes teamColor)
         {
-            // register
-            SoldierManager.Instance.RegisterSoldier(this);
+            
             // apply modifier
             SoldierAttrModifier soldierAttrModifier = GetComponent<SoldierAttrModifier>();
             if (soldierAttrModifier != null)
@@ -108,6 +107,9 @@ namespace Army
             FaceDir = Vector2Int.up;
             TeamColor = teamColor;
             Health = MaxHealth;
+            
+            // register
+            SoldierManager.Instance.RegisterSoldier(this);
         }
 
         // Actions

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,9 +6,12 @@ using Army;
 using Army.AI;
 using Ultility;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class WarSimulation : Singleton<WarSimulation>
 {
+    public UnityEvent<TeamColorTypes> WarOverUnityEvent; 
+    
     public IEnumerator StartSimulation()
     {
         int stepCnt = 100;
@@ -15,8 +19,33 @@ public class WarSimulation : Singleton<WarSimulation>
         while (SoldierManager.Instance.Soldiers.Count > 0 && stepCnt-- > 0)
         {
             StepSimulation();
+            var (isOver, winnerColor) = CheckSimOver();
+            if (isOver)
+            {
+                WarOverUnityEvent?.Invoke(winnerColor);
+                yield break;
+            }
             yield return new WaitForSeconds(stepTime);
         }
+    }
+
+    private (bool, TeamColorTypes) CheckSimOver()
+    {
+        if (SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Blue] == 0 &&
+            SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Red] == 0)
+        {
+            return (true, TeamColorTypes.None);
+        }
+        else if (SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Blue] == 0)
+        {
+            return (true, TeamColorTypes.Red);
+        }
+        else if (SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Red] == 0)
+        {
+            return (true, TeamColorTypes.Blue);
+        }
+
+        return (false, TeamColorTypes.None);
     }
 
     public void StepSimulation()

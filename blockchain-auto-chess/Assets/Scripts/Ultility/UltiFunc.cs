@@ -14,5 +14,12 @@ namespace Ultility
             yield return new WaitUntil(()=>trigger);
             unityEvent.RemoveListener(action.Invoke);
         }
+        public static IEnumerator WaitUntilEvent<T>(UnityEvent<T> unityEvent) {
+            var trigger = false;
+            Action<T> action = _ => trigger = true;
+            unityEvent.AddListener(action.Invoke);
+            yield return new WaitUntil(()=>trigger);
+            unityEvent.RemoveListener(action.Invoke);
+        }
     }
 }

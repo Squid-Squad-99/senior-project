@@ -10,6 +10,9 @@ public class Player : MonoBehaviour
     public TeamColorTypes ArmyTeamColor { get; private set; }
 
     // Player State
+    // Game State
+    public int WinRoundCount { get; private set; } = 0;
+    // Round state
     public bool IsMyTurnToUsedCard { get; private set; } = false;
 
     public Dictionary<int, SoldierFactory.SoldierType> CardInHand { get; private set; } =

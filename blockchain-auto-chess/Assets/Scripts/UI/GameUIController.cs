@@ -7,24 +7,24 @@ namespace UI
     public class GameUIController : Singleton<GameUIController>
     {
         public CardGroupPanel CardGroupPanel;
+        public GameStateBoard GameStateBoard;
 
         private Player _showedPlayer;
-        
-        public void ShowPlayerStatus(Player player)
+
+        public void HookState(Player localPlayer)
         {
-            _showedPlayer = player;
-            _showedPlayer.HandChangeEvent += OnPlayerStatusChange;
-            CardGroupPanel.ShowCards(_showedPlayer.CardInHand);
+            // hook card in hand
+            CardGroupPanel.ShowCards(localPlayer.CardInHand);
+            localPlayer.HandChangeEvent += () => CardGroupPanel.ShowCards(localPlayer.CardInHand);
+            // hook game state
+            Action hookGameState = () =>
+            {
+                GameState gs = GameState.Instance;
+                GameStateBoard.Set(gs.Round, gs.RedWinCnt, gs.BlueWinCnt);
+            };
+            GameState.Instance.GameStateChangeEvent += hookGameState;
+            hookGameState();
         }
 
-        private void OnPlayerStatusChange()
-        {
-            CardGroupPanel.ShowCards(_showedPlayer.CardInHand);
-        }
-
-        private void OnDestroy()
-        {
-            if (_showedPlayer != null) _showedPlayer.HandChangeEvent -= OnPlayerStatusChange;
-        }
     }
 }

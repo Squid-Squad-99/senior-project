@@ -60,7 +60,7 @@ namespace Army
             return soldierTypeDict[soldierName];
         }
     
-        public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor = TeamColorTypes.None)
+        public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor)
         {
             SoldierType soldierType = GetSoldierType(soldierTypeName);
             // get soldier  prefab

@@ -10,8 +10,8 @@ namespace UI
     {
         public event Action<int> CardTagEvent;
         public int SelectedIndex { get; private set; } = -1;
-        private readonly Transform[] _slotsPos = new Transform[9];
         public readonly Dictionary<int, CardFrame> CardFrames = new Dictionary<int, CardFrame>();
+        private readonly Transform[] _slotsPos = new Transform[9];
         private void Awake()
         {
             int i = 0;
