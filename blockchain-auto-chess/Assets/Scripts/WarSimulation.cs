@@ -29,12 +29,15 @@ public class WarSimulation : Singleton<WarSimulation>
             soldierAis.Add(soldier, soldier.GetComponent<SoldierAI>());
         }
 
+        // get soldier ai decided actions
         foreach (var (soldier, ai) in soldierAis.Select(x => (x.Key, x.Value)))
         {
             actions.Add(soldier, ai.DecideAction());
         }
 
-        foreach (var (soldier, (actionType, payload) ) in actions.Select(x => (x.Key, x.Value)))
+
+        // execute actions
+        foreach (var (soldier, (actionType, payload)) in actions.Select(x => (x.Key, x.Value)))
         {
             switch (actionType)
             {

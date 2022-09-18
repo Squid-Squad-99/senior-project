@@ -8,7 +8,7 @@ namespace Army
     public class Soldier : MonoBehaviour
     {
         public Vector2Int IndexPos { get; set; }
-        public Vector2Int FaceDir { get; private set; }
+        public Vector2Int FaceDir { get; private set; } // none critical state variable
         public TeamColorTypes TeamColor { get; private set; }
         public int Health { get; private set; }
         public int AttackRange { get; private set; } = 1;
