@@ -51,7 +51,7 @@ public class GameManager : Singleton<GameManager>
                     GameState.Instance.RedWinCnt++;
                 }
 
-                Debug.Log($"War Over, winner {winnerColor}");
+                Debug.Log($"Round Over, winner {winnerColor}");
             }
         });
 
@@ -61,7 +61,7 @@ public class GameManager : Singleton<GameManager>
             yield return StartCoroutine(StartRound());
             // wait till round over
             yield return StartCoroutine(
-                UltiFunc.WaitUntilEvent<TeamColorTypes>(WarSimulation.Instance.WarOverUnityEvent));
+                UltiFunc.WaitUntilEvent(WarSimulation.Instance.WarOverUnityEvent));
         }
 
         if (GameState.Instance.RedWinCnt == 3)
@@ -85,7 +85,7 @@ public class GameManager : Singleton<GameManager>
         _playerB.FillHand(cards);
 
         // 2. place card to board
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             Coroutine aTurn = StartCoroutine(_playerA.MyTurnToUseCard());
             Coroutine bTurn = StartCoroutine(_playerB.MyTurnToUseCard());
