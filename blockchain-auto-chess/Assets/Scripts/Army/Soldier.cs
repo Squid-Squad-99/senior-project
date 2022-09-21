@@ -60,6 +60,7 @@ namespace Army
         private void OnDestroy()
         {
             if (SoldierManager.Instance != null) SoldierManager.Instance.UnRegisterSoldier(this);
+            
         }
 
         //  will check out of bound and collision

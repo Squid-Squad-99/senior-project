@@ -19,6 +19,7 @@ public class WarSimulation : Singleton<WarSimulation>
         while (SoldierManager.Instance.Soldiers.Count > 0 && stepCnt-- > 0)
         {
             StepSimulation();
+            yield return null;
             var (isOver, winnerColor) = CheckSimOver();
             if (isOver)
             {
@@ -31,16 +32,18 @@ public class WarSimulation : Singleton<WarSimulation>
 
     private (bool, TeamColorTypes) CheckSimOver()
     {
-        if (SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Blue] == 0 &&
-            SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Red] == 0)
+        int blueCnt = SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Blue];
+        int redCnt = SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Red];
+        if (blueCnt == 0 &&
+            redCnt == 0)
         {
             return (true, TeamColorTypes.None);
         }
-        else if (SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Blue] == 0)
+        else if (blueCnt == 0)
         {
             return (true, TeamColorTypes.Red);
         }
-        else if (SoldierManager.Instance.TeamSoldierCnt[TeamColorTypes.Red] == 0)
+        else if (redCnt == 0)
         {
             return (true, TeamColorTypes.Blue);
         }
@@ -48,6 +51,7 @@ public class WarSimulation : Singleton<WarSimulation>
         return (false, TeamColorTypes.None);
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public void StepSimulation()
     {
         Dictionary<Soldier, SoldierAI> soldierAis = new Dictionary<Soldier, SoldierAI>();
