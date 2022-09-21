@@ -85,7 +85,7 @@ public class GameManager : Singleton<GameManager>
         _playerB.FillHand(cards);
 
         // 2. place card to board
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 5; i++)
         {
             Coroutine aTurn = StartCoroutine(_playerA.MyTurnToUseCard());
             Coroutine bTurn = StartCoroutine(_playerB.MyTurnToUseCard());
