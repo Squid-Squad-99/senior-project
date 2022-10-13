@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class GameTiles : Singleton<GameTiles>
 {
+    [Header("Setting")]
+    [Header("Internal Reference")] private int _length = 8;
     [SerializeField] private GameObject _tilePrefab;
     public readonly Tile[,] Data = new Tile[8, 8];
     public int TileSize { get; } = 8;
@@ -48,17 +50,17 @@ public class GameTiles : Singleton<GameTiles>
 
     protected override void Awake()
     {
-        InstantiateTiles();
+        // InstantiateTiles();
     }
 
     private void InstantiateTiles()
     {
         // instantiate tiles
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < _length; i++)
         {
-            for (int j = 0; j < 8; j++)
+            for (int j = 0; j < _length; j++)
             {
-                GameObject tileGameObject = Instantiate(_tilePrefab, new Vector3(i, 0, j), _tilePrefab.transform.rotation,
+                GameObject tileGameObject = Instantiate(_tilePrefab, new Vector3(i, 0, j) + transform.position, _tilePrefab.transform.rotation,
                     transform);
                 Data[i, j] = tileGameObject.GetComponent<Tile>();
                 Data[i, j].Index = new Vector2Int(i, j);
