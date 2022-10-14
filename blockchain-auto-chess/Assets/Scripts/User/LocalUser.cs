@@ -1,28 +1,28 @@
 using System;
 using System.Collections;
 using Army;
+using GameCore;
+using TileMap;
 using UI;
 using Ultility;
 using UnityEngine;
 
-public class LocalUser : Singleton<LocalUser>
+public class LocalUser : MonoBehaviour
 {
     public int SelectedCardFrameIndex => GameUIController.Instance.CardGroupPanel.SelectedIndex;
+    public GamePlayer LocalGamePlayer { get; private set; }
     public Tile MouseHitTile { get; private set; }
 
-    public Player LocalPlayer { get; private set; }
-
     private MouseHitProvider _mouseHitProvider;
+    
 
-    public void Init(Player localPlayer)
-    {
-        LocalPlayer = localPlayer;
-    }
 
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake();
         _mouseHitProvider = GetComponent<MouseHitProvider>();
+        LocalGamePlayer = GetComponent<GamePlayer>();
+        LocalGamePlayer.Init(TeamColorTypes.Blue);
+        GameUIController.Instance.HookState(LocalGamePlayer);
     }
 
     private void Start()
@@ -44,7 +44,7 @@ public class LocalUser : Singleton<LocalUser>
         // use card
         if (SelectedCardFrameIndex != -1 && MouseHitTile != null)
         {
-            LocalPlayer.UseCard(SelectedCardFrameIndex, MouseHitTile.Index);
+            LocalGamePlayer.UseCard(SelectedCardFrameIndex, MouseHitTile.Index);
         }
     }
 

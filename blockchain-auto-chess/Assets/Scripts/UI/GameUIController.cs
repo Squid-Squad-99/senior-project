@@ -1,4 +1,5 @@
 using System;
+using GameCore;
 using Ultility;
 using UnityEngine;
 
@@ -9,13 +10,13 @@ namespace UI
         public CardGroupPanel CardGroupPanel;
         public GameStateBoard GameStateBoard;
 
-        private Player _showedPlayer;
+        private GamePlayer _showedGamePlayer;
 
-        public void HookState(Player localPlayer)
+        public void HookState(GamePlayer localGamePlayer)
         {
             // hook card in hand
-            CardGroupPanel.ShowCards(localPlayer.CardInHand);
-            localPlayer.HandChangeEvent += () => CardGroupPanel.ShowCards(localPlayer.CardInHand);
+            CardGroupPanel.ShowCards(localGamePlayer.CardInHand);
+            localGamePlayer.HandChangeEvent += () => CardGroupPanel.ShowCards(localGamePlayer.CardInHand);
             // hook game state
             Action hookGameState = () =>
             {

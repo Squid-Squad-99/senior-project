@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using Army;
+using GameCore;
 using UI;
 using Ultility;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 /// <summary>
@@ -13,24 +15,11 @@ using UnityEngine;
 /// </summary>
 public class GameManager : Singleton<GameManager>
 {
-    [SerializeField] private Player _playerA, _playerB;
+    [SerializeField] private GamePlayer gamePlayerA;
+    [SerializeField] private GamePlayer gamePlayerB;
 
-    private IEnumerator Start()
+    public IEnumerator StartGameAsync()
     {
-        yield return null;
-        StartCoroutine(StartGame());
-    }
-
-    public IEnumerator StartGame()
-    {
-        // player init
-        _playerA.Init(TeamColorTypes.Blue);
-        _playerB.Init(TeamColorTypes.Red);
-        LocalUser.Instance.Init(_playerA);
-        AutoPlayer.Instance.StartAutoPlay(_playerB);
-        // hook UI
-        GameUIController.Instance.HookState(_playerA);
-
         // update game state on round end
         WarSimulation.Instance.WarOverUnityEvent.AddListener((winnerColor) =>
         {
@@ -74,21 +63,21 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public IEnumerator StartRound()
+    private IEnumerator StartRound()
     {
         // 0. 
         // clean up
         SoldierManager.Instance.DestroyAllSoldier();
         // 1.give card to each player
         var cards = GetRandSoldierCards(5);
-        _playerA.FillHand(cards);
-        _playerB.FillHand(cards);
+        gamePlayerA.FillHand(cards);
+        gamePlayerB.FillHand(cards);
 
         // 2. place card to board
         for (int i = 0; i < 5; i++)
         {
-            Coroutine aTurn = StartCoroutine(_playerA.MyTurnToUseCard());
-            Coroutine bTurn = StartCoroutine(_playerB.MyTurnToUseCard());
+            Coroutine aTurn = StartCoroutine(gamePlayerA.MyTurnToUseCard());
+            Coroutine bTurn = StartCoroutine(gamePlayerB.MyTurnToUseCard());
             yield return aTurn;
             yield return bTurn;
         }

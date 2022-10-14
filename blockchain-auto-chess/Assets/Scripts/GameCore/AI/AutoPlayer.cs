@@ -1,14 +1,16 @@
 using System.Collections;
+using GameCore;
+using TileMap;
 using Ultility;
 using UnityEngine;
 
 public class AutoPlayer : Singleton<AutoPlayer>
 {
-        private Player _player;
+        private GamePlayer _gamePlayer;
 
-        public void StartAutoPlay(Player player)
+        public void StartAutoPlay(GamePlayer gamePlayer)
         {
-                _player = player;
+                _gamePlayer = gamePlayer;
                 StartCoroutine(AutoPlay());
         }
 
@@ -17,11 +19,11 @@ public class AutoPlayer : Singleton<AutoPlayer>
                 while (true)
                 {
                         yield return new WaitForSeconds(1f);
-                        yield return new WaitUntil(() => _player.IsMyTurnToUsedCard);
+                        yield return new WaitUntil(() => _gamePlayer.IsMyTurnToUsedCard);
                         // decide place index
                         Vector2Int soldierIndex = DecidePlaceIndex();
                         int cardIndex = DecideCardIndex();
-                        _player.UseCard(cardIndex, soldierIndex);
+                        _gamePlayer.UseCard(cardIndex, soldierIndex);
                 }
         }
 
@@ -43,7 +45,7 @@ public class AutoPlayer : Singleton<AutoPlayer>
 
         private int DecideCardIndex()
         {
-                foreach (int i in _player.CardInHand.Keys)
+                foreach (int i in _gamePlayer.CardInHand.Keys)
                 {
                         return i;
                 }
