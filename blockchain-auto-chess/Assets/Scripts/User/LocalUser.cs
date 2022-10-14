@@ -21,7 +21,6 @@ public class LocalUser : MonoBehaviour
     {
         _mouseHitProvider = GetComponent<MouseHitProvider>();
         LocalGamePlayer = GetComponent<GamePlayer>();
-        LocalGamePlayer.Init(TeamColorTypes.Blue);
         GameUIController.Instance.HookState(LocalGamePlayer);
     }
 

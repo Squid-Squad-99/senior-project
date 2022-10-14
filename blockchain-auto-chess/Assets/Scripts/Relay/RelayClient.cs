@@ -3,6 +3,7 @@ using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using GameCore;
 using Relay.Payload;
 using RelayClient.Payload;
 using Ultility;
@@ -66,8 +67,9 @@ namespace Relay
             yield return null;
         }
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             IPHostEntry host = Dns.GetHostEntry(_hostNameOrAddress);
             IPAddress ipAddress = host.AddressList[0];
             _remoteEP = new IPEndPoint(ipAddress, _port);
@@ -83,7 +85,7 @@ namespace Relay
             DisconnectServer();
         }
 
-        public WaitUntil WaitUntilRecvType(BasePayload.Type type)
+        private WaitUntil WaitUntilRecvType(BasePayload.Type type)
         {
             return new WaitUntil(() => _recvPayload != null && _recvPayload.PayloadType == (int)type);
         }
@@ -94,6 +96,7 @@ namespace Relay
             {
                 yield return new WaitUntil(() => _haveNewPayload);
                 OnRecvPayload?.Invoke(_recvPayload);
+                _haveNewPayload = false;
             }
         }
 

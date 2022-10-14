@@ -78,6 +78,7 @@ public class GameManager : Singleton<GameManager>
         {
             Coroutine aTurn = StartCoroutine(gamePlayerA.MyTurnToUseCard());
             Coroutine bTurn = StartCoroutine(gamePlayerB.MyTurnToUseCard());
+            Debug.Log($"card place round {i}");
             yield return aTurn;
             yield return bTurn;
         }

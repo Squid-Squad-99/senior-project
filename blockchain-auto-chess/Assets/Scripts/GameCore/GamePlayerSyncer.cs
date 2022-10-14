@@ -13,28 +13,27 @@ namespace GameCore
 
         private void Awake()
         {
-            StartCoroutine(ListenRemotePlayerMove());
-            
+            Relay.RelayClient.Instance.OnRecvPayload.AddListener(ListenRemotePlayerMove);
+
             localPlayer.useCardUnityEvent.AddListener(OnLocalPlayerUseCard);
         }
 
-        private IEnumerator ListenRemotePlayerMove()
+        private void ListenRemotePlayerMove(BasePayload payload)
         {
-            yield return Relay.RelayClient.Instance.WaitUntilRecvType(BasePayload.Type.Msg);
-            GameMsg msg = new GameMsg(Relay.RelayClient.Instance.RecvPayload.Body);
+            if(payload.PayloadType != (int)BasePayload.Type.Msg) return;
+            GameMsg msg = new GameMsg(payload.Body);
             switch (msg.Type)
             {
                 case GameMsgType.UseCard:
-                    Debug.Log("remote use card");
-                    remotePlayer.UseCard(msg.CardIndex, new Vector2Int( msg.X, msg.Y));
+                    remotePlayer.UseCard(msg.CardIndex, new Vector2Int(msg.X, msg.Y));
                     break;
             }
         }
 
         private void OnLocalPlayerUseCard(int cardIndex, int x, int y)
         {
-            Debug.Log("local use card");
-            StartCoroutine(Relay.RelayClient.Instance.SendMsgAsync(new GameMsg(GameMsgType.UseCard,cardIndex, x, y).Encode()));
+            StartCoroutine(
+                Relay.RelayClient.Instance.SendMsgAsync(new GameMsg(GameMsgType.UseCard, cardIndex, x, y).Encode()));
         }
     }
 }

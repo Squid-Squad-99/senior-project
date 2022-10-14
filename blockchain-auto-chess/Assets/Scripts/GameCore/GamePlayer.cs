@@ -10,7 +10,7 @@ namespace GameCore
 {
     public class GamePlayer : MonoBehaviour
     {
-        public TeamColorTypes ArmyTeamColor { get; private set; }
+        public TeamColorTypes armyTeamColor;
 
         // Player State
         // Game State
@@ -23,11 +23,6 @@ namespace GameCore
 
         public event Action HandChangeEvent;
         public UnityEvent<int,int,int> useCardUnityEvent;
-
-        public void Init(TeamColorTypes armyTeamColor)
-        {
-            ArmyTeamColor = armyTeamColor;
-        }
 
         public void ClearHand()
         {
@@ -59,7 +54,7 @@ namespace GameCore
             SoldierFactory.SoldierType soldierType = CardInHand[cardIndex];
             CardInHand.Remove(cardIndex);
             HandChangeEvent?.Invoke();
-            SoldierFactory.Instance.CreateSoldier(soldierType._name, soldierPos, ArmyTeamColor);
+            SoldierFactory.Instance.CreateSoldier(soldierType._name, soldierPos, armyTeamColor);
 
             useCardUnityEvent?.Invoke(cardIndex, soldierPos.x, soldierPos.y);
 
