@@ -3,9 +3,9 @@ using GameCore;
 using Ultility;
 using UnityEngine;
 
-namespace UI
+namespace UI.GameCore
 {
-    public class GameUIController : Singleton<GameUIController>
+    public class GameUIController : MonoBehaviour
     {
         public CardGroupPanel CardGroupPanel;
         public GameStateBoard GameStateBoard;

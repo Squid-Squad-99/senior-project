@@ -21,6 +21,11 @@ namespace GameCore
         public Dictionary<int, SoldierFactory.SoldierType> CardInHand { get; private set; } =
             new Dictionary<int, SoldierFactory.SoldierType>();
 
+        public bool HaveCardIndex(int index)
+        {
+            return CardInHand.ContainsKey(index);
+        }
+
         public event Action HandChangeEvent;
         public UnityEvent<int,int,int> useCardUnityEvent;
 
@@ -51,6 +56,7 @@ namespace GameCore
 
         public void UseCard(int cardIndex, Vector2Int soldierPos)
         {
+            
             SoldierFactory.SoldierType soldierType = CardInHand[cardIndex];
             CardInHand.Remove(cardIndex);
             HandChangeEvent?.Invoke();

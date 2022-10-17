@@ -9,7 +9,6 @@ namespace Army.AI
     [RequireComponent(typeof(Soldier))]
     public class SoldierAI : MonoBehaviour
     {
-
         private Soldier _soldier;
 
         protected void Awake()
@@ -23,8 +22,9 @@ namespace Army.AI
             // check have enemy
             if (enemy == null)
             {
-                return (ActionTypes.DoNothing, new Payload()); 
+                return (ActionTypes.DoNothing, new Payload());
             }
+
             // check if enemy is in range
             bool enemyInRange = _soldier.IsInAttackRange(enemy.IndexPos);
             if (enemyInRange)
@@ -33,49 +33,44 @@ namespace Army.AI
             }
 
             // move to nearest enemy
-            // 1. find most significant direction
-            Vector2Int disVec = enemy.IndexPos - _soldier.IndexPos;
-            int signicAttr = -1;
-            if (math.abs(disVec.x) == math.abs(disVec.y))
+            Vector2Int moveVec = GetMoveVecTo(enemy.IndexPos);
+            if (moveVec != Vector2Int.zero)
             {
-                // blue horizontal move first, red vertical move first
-                signicAttr = (_soldier.TeamColor == TeamColorTypes.Blue) ? 0 : 1;
-            }
-            else
-            {
-                signicAttr = math.abs(disVec.x) > math.abs(disVec.y) ? 0 : 1;
-            }
-            Vector2Int dVec = signicAttr == 0
-                ? (disVec.x > 0 ? Vector2Int.right : Vector2Int.left) // x
-                : (disVec.y > 0 ? Vector2Int.up : Vector2Int.down); // y
-            
-            // find available move direction
-            // 1. to nearest direction vector
-            if (!GameTiles.Instance.IsIndexOccupied(_soldier.IndexPos + dVec))
-            {
-                return (ActionTypes.Move, new MoveActionPayload(dVec));
-            }
-            // find available alternative direction
-            Vector2Int[] horizontalDir = {Vector2Int.left, Vector2Int.right};
-            Vector2Int[] dirs;
-            // if dVec is horizontal => find vertical alternative first
-            if (horizontalDir.Contains(dVec))
-            {
-                dirs = new [] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right};
-            }
-            else
-            {
-                dirs = new [] {Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down};
-            }
-            foreach (Vector2Int dir in dirs)
-            {
-                if (!GameTiles.Instance.IsIndexOutOfBound(_soldier.IndexPos + dir) && !GameTiles.Instance.IsIndexOccupied(_soldier.IndexPos + dir))
-                {
-                    return (ActionTypes.Move, new MoveActionPayload(dir));
-                }
+                return (ActionTypes.Move, new MoveActionPayload(moveVec));
             }
 
             return (ActionTypes.DoNothing, new Payload());
+        }
+
+        private static int RandomSeed => _randomSeed++;
+        private static int _randomSeed = 5;
+
+        private Vector2Int GetMoveVecTo(Vector2Int targetPos)
+        {
+            Vector2Int disVec = targetPos - _soldier.IndexPos;
+            Vector2Int moveVec = Vector2Int.zero;
+
+            if (disVec == Vector2Int.zero)
+            {
+            }
+            else if (disVec.x == 0)
+            {
+                moveVec.y = disVec.y > 0 ? 1 : -1;
+            }
+            else if (disVec.y == 0)
+            {
+                moveVec.x = disVec.x > 0 ? 1 : -1;
+            }
+            else if (RandomSeed % 2 == 0)
+            {
+                moveVec.x = disVec.x > 0 ? 1 : -1;
+            }
+            else
+            {
+                moveVec.y = disVec.y > 0 ? 1 : -1;
+            }
+
+            return moveVec;
         }
 
         private Soldier GetNearestEnemy()

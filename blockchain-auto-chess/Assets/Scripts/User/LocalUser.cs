@@ -4,24 +4,25 @@ using Army;
 using GameCore;
 using TileMap;
 using UI;
+using UI.GameCore;
 using Ultility;
 using UnityEngine;
 
 public class LocalUser : MonoBehaviour
 {
-    public int SelectedCardFrameIndex => GameUIController.Instance.CardGroupPanel.SelectedIndex;
+    public int SelectedCardFrameIndex => _gameUIController.CardGroupPanel.SelectedIndex;
     public GamePlayer LocalGamePlayer { get; private set; }
     public Tile MouseHitTile { get; private set; }
 
     private MouseHitProvider _mouseHitProvider;
-    
+    [SerializeField] private GameUIController _gameUIController;
 
 
     protected void Awake()
     {
         _mouseHitProvider = GetComponent<MouseHitProvider>();
         LocalGamePlayer = GetComponent<GamePlayer>();
-        GameUIController.Instance.HookState(LocalGamePlayer);
+        _gameUIController.HookState(LocalGamePlayer);
     }
 
     private void Start()
@@ -35,13 +36,9 @@ public class LocalUser : MonoBehaviour
     /// </summary>
     private void OnFire()
     {
-        PlaceSoldier();
-    }
-
-    private void PlaceSoldier()
-    {
         // use card
-        if (SelectedCardFrameIndex != -1 && MouseHitTile != null)
+        if (SelectedCardFrameIndex != -1 && MouseHitTile != null &&
+            LocalGamePlayer.HaveCardIndex(SelectedCardFrameIndex))
         {
             LocalGamePlayer.UseCard(SelectedCardFrameIndex, MouseHitTile.Index);
         }
@@ -49,7 +46,7 @@ public class LocalUser : MonoBehaviour
 
     private IEnumerator MouseCardSelection()
     {
-        CardGroupPanel cardGroupPanel = GameUIController.Instance.CardGroupPanel;
+        CardGroupPanel cardGroupPanel = _gameUIController.CardGroupPanel;
         cardGroupPanel.CardTagEvent += (index) =>
         {
             if (cardGroupPanel.SelectedIndex == index)
