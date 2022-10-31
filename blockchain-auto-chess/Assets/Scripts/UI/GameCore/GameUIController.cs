@@ -27,5 +27,10 @@ namespace UI.GameCore
             hookGameState();
         }
 
+        public void ShowCardGroup(bool show)
+        {
+            CardGroupPanel.gameObject.SetActive(show);
+        }
+
     }
 }

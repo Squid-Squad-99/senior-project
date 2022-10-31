@@ -12,12 +12,11 @@ namespace UI.GameCore
 
         private void Start()
         {
-            GameManager.Instance.gameOverEvent.AddListener(OnGameOver);
+            GameManager.Instance.GameOverEvent.AddListener(OnGameOver);
         }
 
         private void OnGameOver(TeamColorTypes winnerColor)
         {
-            Debug.Log("asdasf");
             bool localwin = winnerColor == _localPlayer.armyTeamColor;
             _gameOverUIController.Display(localwin);
         }

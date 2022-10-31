@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
+using GameCore;
 using TileMap;
+using Ultility;
 using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Army
 {
@@ -17,51 +20,37 @@ namespace Army
         public int MaxHealth { get; private set; } = 10;
         public int Strength { get; private set; } = 3;
 
-        private static class MoveTypeConverter
-        {
-            private static readonly Vector2Int Front = new Vector2Int(0, 1);
-            private static readonly Vector2Int Back = new Vector2Int(0, -1);
-            private static readonly Vector2Int Left = new Vector2Int(-1, 0);
-            private static readonly Vector2Int Right = new Vector2Int(1, 0);
-
-            public static Vector2Int GetVec(MoveType moveType)
-            {
-                switch (moveType)
-                {
-                    case MoveType.Front:
-                        return Front;
-                    case MoveType.Back:
-                        return Back;
-                    case MoveType.Left:
-                        return Left;
-                    case MoveType.Right:
-                        return Right;
-                    default:
-                        throw new ArgumentException($"dont have move type {moveType}");
-                }
-            }
-        }
-
-        public enum MoveType
-        {
-            Front,
-            Back,
-            Left,
-            Right
-        }
+        private Vector3 _targetPosition;
+        private Quaternion _targetRotation;
+        private Vector3 _currentVelocity;
 
         // reference
         private GameTiles _gameTiles;
+        private Animator _animator;
+        private Renderer _renderer;
+        private static readonly int AnimIDSpeed = Animator.StringToHash("speed");
+        private static readonly int AnimIDAttack = Animator.StringToHash("attack");
+        private static readonly int AnimIDDie = Animator.StringToHash("die");
+        private static readonly int AnimIDAttackIndex = Animator.StringToHash("attackIndex");
+        private static readonly int AnimIDDieBool = Animator.StringToHash("die_bool");
 
         private void Awake()
         {
+            _animator = GetComponentInChildren<Animator>();
             _gameTiles = GameTiles.Instance;
+            _renderer = GetComponentInChildren<Renderer>();
+        }
+
+        private IEnumerator Start()
+        {
+            StartCoroutine(ToTargetTransformRoutine());
+            StartCoroutine(PlayAnimationRoutine());
+            yield return null;
         }
 
         private void OnDestroy()
         {
             if (SoldierManager.Instance != null) SoldierManager.Instance.UnRegisterSoldier(this);
-            
         }
 
         //  will check out of bound and collision
@@ -80,7 +69,7 @@ namespace Army
             // move in GameTiles
             _gameTiles.PlaceSoldier(this, index);
             // position
-            transform.position = _gameTiles.Data[index.x, index.y].Position;
+            _targetPosition = _gameTiles.Data[index.x, index.y].Position;
         }
 
         private void SetFaceDir(Vector2Int faceDir)
@@ -90,12 +79,11 @@ namespace Army
             // face
             FaceDir = faceDir;
             float turnDegree = faceDir.x == 1 ? 0 : faceDir.x == -1 ? 180 : faceDir.y == 1 ? -90 : 90;
-            transform.rotation = Quaternion.Euler(0, turnDegree, 0);
+            _targetRotation = Quaternion.Euler(0, turnDegree, 0);
         }
 
         public void Init(Vector2Int position, Vector2Int faceDirection, TeamColorTypes teamColor)
         {
-            
             // apply modifier
             SoldierAttrModifier soldierAttrModifier = GetComponent<SoldierAttrModifier>();
             if (soldierAttrModifier != null)
@@ -109,7 +97,7 @@ namespace Army
             FaceDir = Vector2Int.up;
             TeamColor = teamColor;
             Health = MaxHealth;
-            
+
             // register
             SoldierManager.Instance.RegisterSoldier(this);
         }
@@ -119,7 +107,8 @@ namespace Army
         {
             // check can move their
             int dis = math.abs(dVec.x) + math.abs(dVec.y);
-            if (dis > MoveSpeed)
+            if (dVec == Vector2Int.zero) return;
+            if (dis != MoveSpeed)
             {
                 throw new ArgumentException($"cant move this quick, dis: {dis}");
             }
@@ -128,16 +117,6 @@ namespace Army
             SetIndexPos(new Vector2Int(IndexPos.x + dVec.x, IndexPos.y + dVec.y));
             SetFaceDir(dVec);
         }
-
-        public void Move(MoveType moveType)
-        {
-            Vector2Int moveVec = MoveTypeConverter.GetVec(moveType);
-            Vector2Int rotatedMoveVec = RotateVecByFaceDir(moveVec);
-            SetIndexPos(new Vector2Int(IndexPos.x + rotatedMoveVec.x, IndexPos.y + rotatedMoveVec.y));
-            SetFaceDir(moveVec);
-        }
-
-        [SerializeField] private GameObject _debugSquare;
 
 
         public void Attack(Vector2Int attackPos)
@@ -154,8 +133,9 @@ namespace Army
 
             // 2. turn to face enemy
             SetFaceDir(AttackPosFaceDirection(attackPos));
-            // 3. animation
-            CoroutineManager.Instance.StartCoroutine(Create1Sec(attackPos, _debugSquare));
+            // 3. play animation
+            _animator.SetTrigger(AnimIDAttack);
+            // _animator.SetInteger(AnimIDAttackIndex, Random.Range(0, 2));
         }
 
         public void TakeDamage(int damage)
@@ -163,7 +143,11 @@ namespace Army
             Health = math.max(Health - damage, 0);
             if (Health == 0)
             {
-                Destroy(gameObject);
+                // play die animation
+                _animator.SetTrigger(AnimIDDie);
+                _animator.SetBool(AnimIDDieBool, true);
+                StartCoroutine(DieAfter(2));
+                
             }
         }
 
@@ -178,6 +162,17 @@ namespace Army
         public bool IsEnemy(Soldier other)
         {
             return other.TeamColor != TeamColor;
+        }
+
+        public void Show(bool show)
+        {
+            _renderer.enabled = show;
+        }
+
+        private IEnumerator DieAfter(float sec)
+        {
+            yield return new WaitForSeconds(sec);
+            Destroy(gameObject);
         }
 
         private Vector2Int AttackPosFaceDirection(Vector2Int attackPos)
@@ -196,44 +191,50 @@ namespace Army
 
             return dVec;
         }
+        
 
-
-        private Vector2Int RotateVecByFaceDir(Vector2Int vec)
+        private IEnumerator ToTargetTransformRoutine()
         {
-            // rotate matrix 
-            int[] rotateMatrix;
-            if (FaceDir == Vector2Int.up)
-            {
-                rotateMatrix = new[] {1, 0, 0, 1};
-            }
-            else if (FaceDir == Vector2Int.down)
-            {
-                rotateMatrix = new[] {-1, 0, 0, -1};
-            }
-            else if (FaceDir == Vector2Int.right)
-            {
-                rotateMatrix = new[] {0, 1, -1, 0};
-            }
-            else if (FaceDir == Vector2Int.left)
-            {
-                rotateMatrix = new[] {0, -1, 1, 0};
-            }
-            else
-            {
-                throw new ArgumentException($"cant handle face direction {FaceDir}");
-            }
-
-            Vector2Int rotatedVec = new Vector2Int(
-                vec.x * rotateMatrix[0] + vec.y * rotateMatrix[1],
-                vec.x * rotateMatrix[2] + vec.y * rotateMatrix[3]);
-            return rotatedVec;
+            StartCoroutine(ToTargetPosition());
+            StartCoroutine(ToTargetRotation());
+            yield return null;
         }
 
-        private IEnumerator Create1Sec(Vector2Int index, GameObject prefab)
+        private IEnumerator ToTargetPosition()
         {
-            GameObject obj = Instantiate(prefab, _gameTiles.Data[index.x, index.y].Position, prefab.transform.rotation);
-            yield return new WaitForSeconds(1);
-            Destroy(obj);
+            _currentVelocity = Vector3.zero;
+            while (true)
+            {
+                if (transform.position == _targetPosition) yield return null;
+                float dis = transform.position.ManhattanDistance(_targetPosition);
+                float smoothTime = dis / MoveSpeed * GameManager.Instance.AnimationTimePerRound;
+                while (transform.position != _targetPosition)
+                {
+                    transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _currentVelocity,
+                        smoothTime);
+                    yield return null;
+                }
+            }
+        }
+
+        private IEnumerator ToTargetRotation()
+        {
+            while (true)
+            {
+                yield return null;
+                var transform1 = transform;
+                Quaternion rotation = transform1.rotation;
+                transform1.rotation = _targetRotation;
+            }
+        }
+
+        private IEnumerator PlayAnimationRoutine()
+        {
+            while (true)
+            {
+                _animator.SetFloat(AnimIDSpeed, _currentVelocity.magnitude);
+                yield return null;
+            }
         }
     }
 }

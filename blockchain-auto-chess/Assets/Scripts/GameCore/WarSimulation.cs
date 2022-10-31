@@ -9,14 +9,14 @@ using UnityEngine.Events;
 
 namespace GameCore
 {
-    public class WarSimulation : Singleton<WarSimulation>
+    public class WarSimulation: MonoBehaviour
     {
         public UnityEvent<TeamColorTypes> WarOverUnityEvent; 
     
         public IEnumerator StartSimulation()
         {
             int stepCnt = 100;
-            float stepTime = 1f;
+            float stepTime = 2f;
             while (SoldierManager.Instance.Soldiers.Count > 0 && stepCnt-- > 0)
             {
                 StepSimulation();

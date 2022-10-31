@@ -14,7 +14,7 @@ namespace Army
             Base,
             Melee,
         }
-        
+
         [Serializable]
         public struct SoldierType
         {
@@ -22,9 +22,12 @@ namespace Army
             public GameObject _prefab;
             public GameObject _cardFrame;
         }
+
         [SerializeField] private List<SoldierType> _soldierTypes = new List<SoldierType>();
-        public readonly Dictionary<SoldierNameEnum, SoldierType> soldierTypeDict = new Dictionary<SoldierNameEnum, SoldierType>();
-        
+
+        public readonly Dictionary<SoldierNameEnum, SoldierType> soldierTypeDict =
+            new Dictionary<SoldierNameEnum, SoldierType>();
+
         [Serializable]
         public struct TeamMaterial
         {
@@ -36,6 +39,7 @@ namespace Army
 
         private readonly Dictionary<TeamColorTypes, TeamMaterial> _teamMaterialDict =
             new Dictionary<TeamColorTypes, TeamMaterial>();
+
         private GameTiles _gameTiles;
 
         protected override void Awake()
@@ -56,22 +60,23 @@ namespace Army
 
         private SoldierType GetSoldierType(SoldierNameEnum soldierName)
         {
-            bool haveType= soldierTypeDict.ContainsKey(soldierName);
+            bool haveType = soldierTypeDict.ContainsKey(soldierName);
             if (!haveType) throw new ArgumentException($"dont have soldier type named: {soldierName}");
             return soldierTypeDict[soldierName];
         }
-    
-        public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor)
+
+        public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor, Vector2Int direction)
         {
             SoldierType soldierType = GetSoldierType(soldierTypeName);
             // get soldier  prefab
             GameObject soldierPrefab = soldierType._prefab;
             Vector3 tilePos = _gameTiles.Data[pos.x, pos.y].Position;
-            Soldier soldier = Instantiate(soldierPrefab, tilePos, soldierPrefab.transform.rotation).GetComponent<Soldier>();
-            soldier.Init(pos, new Vector2Int(0,1), teamColor);
+            Soldier soldier = Instantiate(soldierPrefab, tilePos, soldierPrefab.transform.rotation)
+                .GetComponent<Soldier>();
+            soldier.Init(pos, direction, teamColor);
             // set team material
-            soldier.GetComponent<Renderer>().material =  _teamMaterialDict[teamColor]._material;
-            
+            soldier.GetComponentInChildren<Renderer>().material = _teamMaterialDict[teamColor]._material;
+
             return soldier;
         }
     }

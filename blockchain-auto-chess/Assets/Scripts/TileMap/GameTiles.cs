@@ -49,6 +49,10 @@ namespace TileMap
 
         protected override void Awake()
         {
+            foreach (Transform t in transform)
+            {
+                Destroy(t.gameObject);
+            }
             InstantiateTiles();
         }
 

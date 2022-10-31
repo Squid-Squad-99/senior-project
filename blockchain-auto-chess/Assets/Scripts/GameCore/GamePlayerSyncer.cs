@@ -11,11 +11,16 @@ namespace GameCore
         [SerializeField] private GamePlayer localPlayer;
         [SerializeField] private GamePlayer remotePlayer;
 
-        private void Awake()
+        private void OnEnable()
         {
             Relay.RelayClient.Instance.OnRecvPayload.AddListener(ListenRemotePlayerMove);
 
             localPlayer.useCardUnityEvent.AddListener(OnLocalPlayerUseCard);
+        }
+
+        private void OnDisable()
+        {
+            localPlayer.useCardUnityEvent.RemoveListener(OnLocalPlayerUseCard);
         }
 
         private void ListenRemotePlayerMove(BasePayload payload)
