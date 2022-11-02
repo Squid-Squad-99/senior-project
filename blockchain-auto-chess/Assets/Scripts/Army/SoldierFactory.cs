@@ -67,6 +67,7 @@ namespace Army
 
         public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor, Vector2Int direction)
         {
+            Debug.Log(teamColor);
             SoldierType soldierType = GetSoldierType(soldierTypeName);
             // get soldier  prefab
             GameObject soldierPrefab = soldierType._prefab;
@@ -75,7 +76,7 @@ namespace Army
                 .GetComponent<Soldier>();
             soldier.Init(pos, direction, teamColor);
             // set team material
-            soldier.GetComponentInChildren<Renderer>().material = _teamMaterialDict[teamColor]._material;
+            soldier.Renderer.material = _teamMaterialDict[teamColor]._material;
 
             return soldier;
         }

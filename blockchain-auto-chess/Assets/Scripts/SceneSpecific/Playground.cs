@@ -32,7 +32,7 @@ namespace SceneSpecific
                 }
                 else if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    soilder.Attack(soilder.IndexPos + Vector2Int.up);
+                    StartCoroutine(soilder.Attack(soilder.IndexPos + Vector2Int.up));
                 }
 
                 yield return null;

@@ -16,12 +16,14 @@ namespace GameCore
         public IEnumerator StartSimulation()
         {
             int stepCnt = 100;
-            float stepTime = 2f;
-            while (SoldierManager.Instance.Soldiers.Count > 0 && stepCnt-- > 0)
+            float stepTime = GameManager.Instance.AnimationTimePerRound;
+            bool isOver = false;
+            TeamColorTypes winnerColor = TeamColorTypes.None;
+            while (!isOver)
             {
                 StepSimulation();
                 yield return null;
-                var (isOver, winnerColor) = CheckSimOver();
+                 (isOver, winnerColor) = CheckSimOver();
                 if (isOver)
                 {
                     WarOverUnityEvent?.Invoke(winnerColor);
@@ -77,7 +79,7 @@ namespace GameCore
                 {
                     case ActionTypes.Attack:
                         AttackActionPayload attackPayLoad = payload as AttackActionPayload;
-                        soldier.Attack(attackPayLoad!.AttackPos);
+                        StartCoroutine(soldier.Attack(attackPayLoad!.AttackPos));
                         break;
                     case ActionTypes.Move:
                         MoveActionPayload movePayLoad = payload as MoveActionPayload;

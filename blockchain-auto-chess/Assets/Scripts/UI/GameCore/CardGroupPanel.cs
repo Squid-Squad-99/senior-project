@@ -12,6 +12,7 @@ namespace UI
         public int SelectedIndex { get; private set; } = -1;
         public readonly Dictionary<int, CardFrame> CardFrames = new Dictionary<int, CardFrame>();
         private readonly Transform[] _slotsPos = new Transform[9];
+
         private void Awake()
         {
             int i = 0;
@@ -23,7 +24,10 @@ namespace UI
 
             foreach (Transform slot in _slotsPos)
             {
-                slot.gameObject.SetActive(false);
+                if (slot != null)
+                {
+                    slot.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -33,15 +37,17 @@ namespace UI
             {
                 Destroy(card.gameObject);
             }
+
             CardFrames.Clear();
-            
+
             foreach (var item in hand)
             {
                 int index = item.Key;
                 SoldierFactory.SoldierType soldierType = item.Value;
-                GameObject card = Instantiate(soldierType._cardFrame, _slotsPos[index].position,  soldierType._cardFrame.transform.rotation, transform);
+                GameObject card = Instantiate(soldierType._cardFrame, _slotsPos[index].position,
+                    soldierType._cardFrame.transform.rotation, transform);
                 CardFrames[index] = card.GetComponent<CardFrame>();
-                card.GetComponent<Button>().onClick.AddListener(()=>CardTagEvent?.Invoke(index));
+                card.GetComponent<Button>().onClick.AddListener(() => CardTagEvent?.Invoke(index));
             }
         }
 
@@ -58,6 +64,7 @@ namespace UI
             {
                 cardFrame.FocusCard(false);
             }
+
             SelectedIndex = -1;
         }
     }

@@ -2,14 +2,17 @@ using System;
 using Army;
 using Ultility;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace TileMap
 {
     public class GameTiles : Singleton<GameTiles>
     {
-        [Header("Setting")]
-        [Header("Internal Reference")] private int _length = 8;
+        [Header("Setting")] [Header("Internal Reference")]
+        private int _length = 8;
+
         [SerializeField] private GameObject _tilePrefab;
+        [SerializeField] private Sprite[] _tileSprites;
         public Tile[,] Data = new Tile[8, 8];
         public int TileSize { get; } = 8;
 
@@ -18,7 +21,8 @@ namespace TileMap
             //check index is not out of bound & occupied
             if (index.x < 0 || index.x > 7 || index.y < 0 || index.y > 7)
                 throw new ArgumentException($"{index} is out of bound");
-            if (Data[index.x, index.y].Occupier != null && Data[index.x, index.y].Occupier != soldier) throw new ArgumentException($"{index} is already occupied");
+            if (Data[index.x, index.y].Occupier != null && Data[index.x, index.y].Occupier != soldier)
+                throw new ArgumentException($"{index} is already occupied");
             //place soldier
             Data[soldier.IndexPos.x, soldier.IndexPos.y].Occupier = null;
             Data[index.x, index.y].Occupier = soldier;
@@ -36,9 +40,10 @@ namespace TileMap
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    Data[i,j].Focus(false);
+                    Data[i, j].Focus(false);
                 }
             }
+
             Data[index.x, index.y].Focus(true);
         }
 
@@ -53,6 +58,7 @@ namespace TileMap
             {
                 Destroy(t.gameObject);
             }
+
             InstantiateTiles();
         }
 
@@ -63,8 +69,11 @@ namespace TileMap
             {
                 for (int j = 0; j < _length; j++)
                 {
-                    GameObject tileGameObject = Instantiate(_tilePrefab, new Vector3(i, 0, j) + transform.position, _tilePrefab.transform.rotation,
+                    GameObject tileGameObject = Instantiate(_tilePrefab, new Vector3(i, 0, j) + transform.position,
+                        _tilePrefab.transform.rotation,
                         transform);
+                    var spriteRenderer = tileGameObject.GetComponent<SpriteRenderer>();
+                    spriteRenderer.sprite = _tileSprites[Random.Range(0, _tileSprites.Length)];
                     Data[i, j] = tileGameObject.GetComponent<Tile>();
                     Data[i, j].Index = new Vector2Int(i, j);
                 }

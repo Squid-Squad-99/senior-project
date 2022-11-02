@@ -25,9 +25,12 @@ namespace Army
         private Vector3 _currentVelocity;
 
         // reference
+        [Header("reference")] [SerializeField] private ParticleSystem _runParticle;
+        [SerializeField] private ParticleSystem _attackParticle;
+        [SerializeField] private ParticleSystem _dieParticle;
+        public Renderer Renderer;
         private GameTiles _gameTiles;
         private Animator _animator;
-        private Renderer _renderer;
         private static readonly int AnimIDSpeed = Animator.StringToHash("speed");
         private static readonly int AnimIDAttack = Animator.StringToHash("attack");
         private static readonly int AnimIDDie = Animator.StringToHash("die");
@@ -38,7 +41,6 @@ namespace Army
         {
             _animator = GetComponentInChildren<Animator>();
             _gameTiles = GameTiles.Instance;
-            _renderer = GetComponentInChildren<Renderer>();
         }
 
         private IEnumerator Start()
@@ -119,26 +121,26 @@ namespace Army
         }
 
 
-        public void Attack(Vector2Int attackPos)
+        public IEnumerator Attack(Vector2Int attackPos)
         {
             // check can attack
             if (!IsInAttackRange(attackPos)) throw new ArgumentException($"can't attack position out of range");
             // attack
-            // 1. attack
-            Soldier enemy = _gameTiles.Data[attackPos.x, attackPos.y].Occupier;
-            if (enemy)
-            {
-                enemy.TakeDamage(Strength);
-            }
-
             // 2. turn to face enemy
             SetFaceDir(AttackPosFaceDirection(attackPos));
             // 3. play animation
             _animator.SetTrigger(AnimIDAttack);
-            // _animator.SetInteger(AnimIDAttackIndex, Random.Range(0, 2));
+            // 1. attack
+            yield return new WaitForSeconds(0.5f);
+            Soldier enemy = _gameTiles.Data[attackPos.x, attackPos.y].Occupier;
+            _attackParticle.Play();
+            if (enemy)
+            {
+                enemy.TakeDamage(Strength);
+            }
         }
 
-        public void TakeDamage(int damage)
+        private void TakeDamage(int damage)
         {
             Health = math.max(Health - damage, 0);
             if (Health == 0)
@@ -146,8 +148,10 @@ namespace Army
                 // play die animation
                 _animator.SetTrigger(AnimIDDie);
                 _animator.SetBool(AnimIDDieBool, true);
+                _dieParticle.Play();
+                // unregister
+                if (SoldierManager.Instance != null) SoldierManager.Instance.UnRegisterSoldier(this);
                 StartCoroutine(DieAfter(2));
-                
             }
         }
 
@@ -166,7 +170,7 @@ namespace Army
 
         public void Show(bool show)
         {
-            _renderer.enabled = show;
+            Renderer.enabled = show;
         }
 
         private IEnumerator DieAfter(float sec)
@@ -191,7 +195,7 @@ namespace Army
 
             return dVec;
         }
-        
+
 
         private IEnumerator ToTargetTransformRoutine()
         {
@@ -232,7 +236,17 @@ namespace Army
         {
             while (true)
             {
-                _animator.SetFloat(AnimIDSpeed, _currentVelocity.magnitude);
+                float speed = _currentVelocity.magnitude;
+                _animator.SetFloat(AnimIDSpeed, speed);
+                if (speed >= 0.1f)
+                {
+                    if (_runParticle != null) _runParticle.Play();
+                }
+                else
+                {
+                    if (_runParticle != null) _runParticle.Stop();
+                }
+
                 yield return null;
             }
         }
