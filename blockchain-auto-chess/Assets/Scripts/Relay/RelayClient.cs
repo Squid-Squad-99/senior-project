@@ -78,6 +78,7 @@ namespace Relay
 
             _socket = socket;
             _buffer = new byte[1048576]; // 2MB buffer
+            
         }
 
         private void OnDestroy()

@@ -15,5 +15,6 @@ namespace GameMeta
             yield return Relay.RelayClient.Instance.JoinRoomAsync(1);
             yield return GameManager.Instance.StartGameAsync();
         }
+        
     }
 }

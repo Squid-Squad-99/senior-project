@@ -15,7 +15,6 @@ namespace GameCore
     
         public IEnumerator StartSimulation()
         {
-            int stepCnt = 100;
             float stepTime = GameManager.Instance.AnimationTimePerRound;
             bool isOver = false;
             TeamColorTypes winnerColor = TeamColorTypes.None;

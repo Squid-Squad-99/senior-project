@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Ultility
 {
-    public class Singleton<T> : MonoBehaviour where T: MonoBehaviour
+    public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         public static T Instance
         {
