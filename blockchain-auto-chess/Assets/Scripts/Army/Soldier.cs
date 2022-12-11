@@ -19,6 +19,7 @@ namespace Army
         public int MoveSpeed { get; private set; } = 1;
         public int MaxHealth { get; private set; } = 10;
         public int Strength { get; private set; } = 3;
+        public string NameInTeam { get; private set; }
 
         private Vector3 _targetPosition;
         private Quaternion _targetRotation;
@@ -99,6 +100,7 @@ namespace Army
             FaceDir = Vector2Int.up;
             TeamColor = teamColor;
             Health = MaxHealth;
+            NameInTeam = $"Solider{SoldierManager.Instance.TeamSoldierCnt[teamColor]}";
 
             // register
             SoldierManager.Instance.RegisterSoldier(this);

@@ -67,7 +67,6 @@ namespace Army
 
         public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor, Vector2Int direction)
         {
-            Debug.Log(teamColor);
             SoldierType soldierType = GetSoldierType(soldierTypeName);
             // get soldier  prefab
             GameObject soldierPrefab = soldierType._prefab;

@@ -4,7 +4,7 @@ using Army;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI
+namespace UI.GameCore
 {
     public class CardGroupPanel : MonoBehaviour
     {
