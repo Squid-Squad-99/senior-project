@@ -9,47 +9,25 @@ namespace Army
 {
     public class SoldierFactory : Singleton<SoldierFactory>
     {
-        public enum SoldierNameEnum
-        {
-            Base,
-            Melee,
-        }
+        [SerializeField] private List<SoldierType> _soldierTypes = new();
+        [SerializeField] private List<TeamMaterial> _teamMaterials = new();
 
-        [Serializable]
-        public struct SoldierType
-        {
-            public SoldierNameEnum _name;
-            public GameObject _prefab;
-            public GameObject _cardFrame;
-        }
+        public readonly Dictionary<SoldierNameEnum, SoldierType> SoldierTypeDict = new();
+        private readonly Dictionary<TeamColorTypes, TeamMaterial> _teamMaterialDict = new();
 
-        [SerializeField] private List<SoldierType> _soldierTypes = new List<SoldierType>();
-
-        public readonly Dictionary<SoldierNameEnum, SoldierType> soldierTypeDict =
-            new Dictionary<SoldierNameEnum, SoldierType>();
-
-        [Serializable]
-        public struct TeamMaterial
-        {
-            public TeamColorTypes _teamColor;
-            public Material _material;
-        }
-
-        [SerializeField] private List<TeamMaterial> _teamMaterials = new List<TeamMaterial>();
-
-        private readonly Dictionary<TeamColorTypes, TeamMaterial> _teamMaterialDict =
-            new Dictionary<TeamColorTypes, TeamMaterial>();
-
+        // reference of game tile
         private GameTiles _gameTiles;
 
         protected override void Awake()
         {
             base.Awake();
+            // set game tile reference
             _gameTiles = GameTiles.Instance;
+            
             //
             foreach (SoldierType soldierType in _soldierTypes)
             {
-                soldierTypeDict.Add(soldierType._name, soldierType);
+                SoldierTypeDict.Add(soldierType._name, soldierType);
             }
 
             foreach (TeamMaterial teamMaterial in _teamMaterials)
@@ -60,9 +38,9 @@ namespace Army
 
         private SoldierType GetSoldierType(SoldierNameEnum soldierName)
         {
-            bool haveType = soldierTypeDict.ContainsKey(soldierName);
+            bool haveType = SoldierTypeDict.ContainsKey(soldierName);
             if (!haveType) throw new ArgumentException($"dont have soldier type named: {soldierName}");
-            return soldierTypeDict[soldierName];
+            return SoldierTypeDict[soldierName];
         }
 
         public Soldier CreateSoldier(SoldierNameEnum soldierTypeName, Vector2Int pos, TeamColorTypes teamColor, Vector2Int direction)

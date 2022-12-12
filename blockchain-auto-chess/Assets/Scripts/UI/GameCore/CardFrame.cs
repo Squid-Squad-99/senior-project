@@ -10,7 +10,7 @@ namespace UI
     [ExecuteAlways]
     public class CardFrame : MonoBehaviour
     {
-        public SoldierFactory.SoldierNameEnum SoldierNameEnum;
+        public SoldierNameEnum SoldierNameEnum;
         
         enum CardColor
         {

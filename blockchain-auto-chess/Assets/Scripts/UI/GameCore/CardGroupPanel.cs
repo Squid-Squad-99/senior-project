@@ -31,7 +31,7 @@ namespace UI.GameCore
             }
         }
 
-        public void ShowCards(Dictionary<int, SoldierFactory.SoldierType> hand)
+        public void ShowCards(Dictionary<int, SoldierType> hand)
         {
             foreach (var card in CardFrames.Values)
             {
@@ -43,7 +43,7 @@ namespace UI.GameCore
             foreach (var item in hand)
             {
                 int index = item.Key;
-                SoldierFactory.SoldierType soldierType = item.Value;
+                SoldierType soldierType = item.Value;
                 GameObject card = Instantiate(soldierType._cardFrame, _slotsPos[index].position,
                     soldierType._cardFrame.transform.rotation, transform);
                 CardFrames[index] = card.GetComponent<CardFrame>();

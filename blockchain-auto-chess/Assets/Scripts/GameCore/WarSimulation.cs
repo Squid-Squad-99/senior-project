@@ -12,6 +12,7 @@ namespace GameCore
     public class WarSimulation : MonoBehaviour
     {
         public UnityEvent<TeamColorTypes> WarOverUnityEvent;
+        public TeamColorTypes WinnerColor { get; private set; }
 
         public IEnumerator StartSimulation()
         {
@@ -27,6 +28,7 @@ namespace GameCore
                 if (isOver)
                 {
                     WarOverUnityEvent?.Invoke(winnerColor);
+                    WinnerColor = winnerColor;
                     yield break;
                 }
 

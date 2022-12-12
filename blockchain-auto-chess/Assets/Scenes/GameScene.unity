@@ -5842,7 +5842,7 @@ PrefabInstance:
     - target: {fileID: 2826359337577829251, guid: 0bbc702c7a34f4c239c7845ddedf9365,
         type: 3}
       propertyPath: _initCardCnt
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2826359337577829251, guid: 0bbc702c7a34f4c239c7845ddedf9365,
         type: 3}

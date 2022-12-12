@@ -27,8 +27,8 @@ namespace GameCore
         // Round state
         public bool IsMyTurnToUsedCard { get; private set; } = false;
 
-        public Dictionary<int, SoldierFactory.SoldierType> CardInHand { get; private set; } =
-            new Dictionary<int, SoldierFactory.SoldierType>();
+        public Dictionary<int, SoldierType> CardInHand { get; private set; } =
+            new Dictionary<int, SoldierType>();
 
         public List<Soldier> Soldiers = new List<Soldier>();
 
@@ -46,7 +46,7 @@ namespace GameCore
             HandChangeEvent?.Invoke();
         }
 
-        public void FillHand(List<SoldierFactory.SoldierType> cards)
+        public void FillHand(List<SoldierType> cards)
         {
             ClearHand();
             for (int i = 0; i < cards.Count; i++)
@@ -67,7 +67,7 @@ namespace GameCore
 
         public void UseCard(int cardIndex, Vector2Int soldierPos)
         {
-            SoldierFactory.SoldierType soldierType = CardInHand[cardIndex];
+            SoldierType soldierType = CardInHand[cardIndex];
             CardInHand.Remove(cardIndex);
             HandChangeEvent?.Invoke();
             if (_playerTypeEnum == PlayerTypeEnum.Local)

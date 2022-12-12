@@ -34,62 +34,31 @@ namespace GameCore
             _warSimulation = GetComponent<WarSimulation>();
         }
 
+        /// <summary>
+        /// Start game 
+        /// </summary>
         public IEnumerator StartGameAsync()
         {
-            // update game state on round end
-            _warSimulation.WarOverUnityEvent.AddListener((winnerColor) =>
-            {
-                if (winnerColor == TeamColorTypes.None)
-                {
-                    GameState.Instance.Round++;
-                    Debug.Log("it a tie");
-                }
-                else
-                {
-                    GameState.Instance.Round++;
-                    if (winnerColor == TeamColorTypes.Blue)
-                    {
-                        GameState.Instance.BlueWinCnt++;
-                    }
-                    else
-                    {
-                        GameState.Instance.RedWinCnt++;
-                    }
 
-                    Debug.Log($"Round Over, winner {winnerColor}");
-                }
-            });
-
-            while (GameState.Instance.RedWinCnt < _roundCntToWin && GameState.Instance.BlueWinCnt < _roundCntToWin)
+            // run round when no winner yet
+            TeamColorTypes? winner;
+            while ((winner = GetGameWinner()) == null)
             {
-                // start  round
-                yield return StartCoroutine(StartRound());
-                // wait till round over
-                yield return StartCoroutine(
-                    UltiFunc.WaitUntilEvent(_warSimulation.WarOverUnityEvent));
+                // run round
+                yield return StartCoroutine(StartRoundAsync());
             }
 
-            if (GameState.Instance.RedWinCnt == _roundCntToWin)
-            {
-                Debug.Log("red win Game");
-                GameOverEvent.Invoke(TeamColorTypes.Red);
-            }
-            else
-            {
-                Debug.Log("blue win Game");
-                GameOverEvent.Invoke(TeamColorTypes.Blue);
-            }
+            // handle game over
+            OnGameOver(winner.Value);
         }
 
-        private IEnumerator StartRound()
+        /// <summary>
+        /// start round
+        /// </summary>
+        private IEnumerator StartRoundAsync()
         {
-            // 0.
-            RoundStartEvent.Invoke();
-            // 0. 
-            // clean up
-            SoldierManager.Instance.DestroyAllSoldier();
             // 1.give card to each player
-            var cards = GetRandSoldierCards(5);
+            var cards = GetRandSoldierCards(_initCardCnt);
             LocalPlayer.FillHand(cards);
             EnemyPlayer.FillHand(cards);
 
@@ -105,15 +74,76 @@ namespace GameCore
             // 3. start simulation
             WarSimStartEvent.Invoke();
             yield return new WaitForSeconds(1);
-            StartCoroutine(_warSimulation.StartSimulation());
+            yield return _warSimulation.StartSimulation();
+            UpdateOnRoundOver(_warSimulation.WinnerColor);
+            
+            // 4. clean up
+            SoldierManager.Instance.DestroyAllSoldier();
         }
 
-        private List<SoldierFactory.SoldierType> GetRandSoldierCards(int num)
+        /// <summary>
+        /// update game state on round over respect of which color win that round
+        /// </summary>
+        /// <param name="winnerColor"></param>
+        private void UpdateOnRoundOver(TeamColorTypes winnerColor)
         {
-            List<SoldierFactory.SoldierType> cards = new List<SoldierFactory.SoldierType>();
+            switch (winnerColor)
+            {
+                // tie
+                case TeamColorTypes.None:
+                    GameState.Instance.Round++;
+                    Debug.Log("it a tie");
+                    break;
+                // blue win
+                case TeamColorTypes.Blue:
+                    GameState.Instance.Round++;
+                    GameState.Instance.BlueWinCnt++;
+                    Debug.Log($"Round Over, winner {winnerColor}");
+                    break;
+                // red win
+                case TeamColorTypes.Red:
+                    GameState.Instance.Round++;
+                    GameState.Instance.RedWinCnt++;
+                    Debug.Log($"Round Over, winner {winnerColor}");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// return game winner, if no winner return null
+        /// </summary>
+        /// <returns>game winner</returns>
+        private TeamColorTypes? GetGameWinner()
+        {
+            TeamColorTypes? winner = default;
+            if (GameState.Instance.RedWinCnt == _roundCntToWin)
+            {
+                winner = TeamColorTypes.Red;
+            }
+            else if (GameState.Instance.RedWinCnt == _roundCntToWin)
+            {
+                winner = TeamColorTypes.Blue;
+            }
+
+            return winner;
+        }
+
+        /// <summary>
+        /// Handle stuff after game over
+        /// </summary>
+        /// <param name="winner">game winner</param>
+        private void OnGameOver(TeamColorTypes winner)
+        {
+            Debug.Log($"{winner} win Game");
+            GameOverEvent.Invoke(winner);
+        }
+
+        private List<SoldierType> GetRandSoldierCards(int num)
+        {
+            List<SoldierType> cards = new List<SoldierType>();
             for (int i = 0; i < num; i++)
             {
-                cards.Add(SoldierFactory.Instance.soldierTypeDict[SoldierFactory.SoldierNameEnum.Base]);
+                cards.Add(SoldierFactory.Instance.SoldierTypeDict[SoldierNameEnum.Base]);
             }
 
             return cards;

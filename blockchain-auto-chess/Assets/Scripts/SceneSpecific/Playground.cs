@@ -9,7 +9,7 @@ namespace SceneSpecific
     {
         private IEnumerator Start()
         {
-            var soilder = SoldierFactory.Instance.CreateSoldier(SoldierFactory.SoldierNameEnum.Base, new Vector2Int(2, 2),
+            var soilder = SoldierFactory.Instance.CreateSoldier(SoldierNameEnum.Base, new Vector2Int(2, 2),
                 TeamColorTypes.Red, Vector2Int.up);
             yield return null;
             while (true)
